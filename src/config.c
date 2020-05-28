@@ -2241,7 +2241,7 @@ standardConfig configs[] = {
     createIntConfig("min-replicas-to-write", "min-slaves-to-write", MODIFIABLE_CONFIG, 0, INT_MAX, server.repl_min_slaves_to_write, 0, INTEGER_CONFIG, NULL, updateGoodSlaves),
     createIntConfig("min-replicas-max-lag", "min-slaves-max-lag", MODIFIABLE_CONFIG, 0, INT_MAX, server.repl_min_slaves_max_lag, 10, INTEGER_CONFIG, NULL, updateGoodSlaves),
 
-    createIntConfig("redisoo_ttl", NULL, MODIFIABLE_CONFIG, 0, INT_MAX, server.redisoo_ttl, 0, INTEGER_CONFIG, NULL, NULL),
+    createIntConfig("redisoo_get_ttl", NULL, MODIFIABLE_CONFIG, 0, INT_MAX, server.redisoo_get_ttl, 0, INTEGER_CONFIG, NULL, NULL),
 
     /* Unsigned int configs */
     createUIntConfig("maxclients", NULL, MODIFIABLE_CONFIG, 1, UINT_MAX, server.maxclients, 10000, INTEGER_CONFIG, NULL, updateMaxclients),

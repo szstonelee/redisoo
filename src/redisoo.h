@@ -15,9 +15,8 @@ enum DatabaseType {
 int db_get(int db_type, char* connection, char* statement, 
            char* key, size_t key_sz, char** val, size_t* val_sz);
 
-
 int db_set(int db_type, char* connection, char* statement,
-           char* key, size_t key_sz, char* c_val, size_t val_sz);
+           char* key, size_t key_sz, char* val, size_t val_sz);
 
 int db_del(int db_type, char* connection, char* statement,
            char* key, size_t key_sz);

@@ -1429,6 +1429,15 @@ dictType backendDictType = {
     dictListDestructor          /* val destructor */
 };
 
+dictType backendSetDictType = {
+    dictSdsHash,                /* hash function */
+    NULL,                       /* key dup */
+    NULL,                       /* val dup */
+    dictSdsKeyCompare,          /* key compare */
+    dictSdsDestructor,          /* key destructor */
+    NULL                        /* val destructor */
+};
+
 int htNeedsResize(dict *dict) {
     long long size, used;
 
@@ -2841,7 +2850,7 @@ void initServer(void) {
         listSetFreeMethod(server.db[j].defrag_later,(void (*)(void*))sdsfree);
 
         server.db[j].backendGetKeys = dictCreate(&backendDictType,NULL);
-        server.db[j].backendSetKeys = dictCreate(&backendDictType,NULL);
+        server.db[j].backendSetKeys = dictCreate(&backendSetDictType,NULL);
         server.db[j].backendDelKeys = dictCreate(&backendDictType,NULL);
     }
     evictionPoolAlloc(); /* Initialize the LRU keys pool. */

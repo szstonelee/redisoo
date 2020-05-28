@@ -29,6 +29,8 @@
 
 #include "server.h"
 #include "atomicvar.h"
+#include "backend.h"
+
 #include <sys/socket.h>
 #include <sys/uio.h>
 #include <math.h>
@@ -168,6 +170,8 @@ client *createClient(connection *conn) {
     initClientMultiState(c);
 
     c->backend_state = CLIENT_BACKEND_NORMAL;
+    c->backend_set_sync_reply = 0;
+    c->backend_del_sync_reply = 0;
 
     return c;
 }
@@ -1193,6 +1197,9 @@ void freeClient(client *c) {
     /* UNWATCH all the keys */
     unwatchAllKeys(c);
     listRelease(c->watched_keys);
+
+    /* release all backend if exisit */
+    releaseWhenFreeClient(c);
 
     /* Unsubscribe from all the pubsub channels */
     pubsubUnsubscribeAllChannels(c,0);

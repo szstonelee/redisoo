@@ -78,6 +78,12 @@ void setGenericCommand(client *c, int flags, robj *key, robj *val, robj *expire,
         if (unit == UNIT_SECONDS) milliseconds *= 1000;
     }
 
+    if (c->backend_set_sync_reply == 1) {
+        addReplyErrorFormat(c,"sync to backend failed for %s",c->cmd->name);
+        c->backend_set_sync_reply = 0;
+        return;
+    }
+
     if ((flags & OBJ_SET_NX && lookupKeyWrite(c->db,key) != NULL) ||
         (flags & OBJ_SET_XX && lookupKeyWrite(c->db,key) == NULL))
     {

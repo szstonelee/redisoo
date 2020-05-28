@@ -771,8 +771,9 @@ typedef struct {
 
 /* define three state for backend_state in struct client */
 #define CLIENT_BACKEND_NORMAL 0
-#define CLIENT_BACKEND_READ 1
-#define CLIENT_BACKEND_WRITE 2
+#define CLIENT_BACKEND_GET 1
+#define CLIENT_BACKEND_SET 2
+#define CLIENT_BACKEND_DEL 3
 
 typedef struct client {
     uint64_t id;            /* Client incremental unique ID. */
@@ -861,6 +862,8 @@ typedef struct client {
 
     /* client state for backend */
     int backend_state;
+    int backend_set_sync_reply;
+    int backend_del_sync_reply;
 } client;
 
 struct saveparam {
@@ -1043,20 +1046,23 @@ typedef struct BackendGetJob {
     int dbid;
     sds getKey;
     sds returnGetKey;
-    robj *valFromBackend;
+    sds valFromBackend;
 } BackendGetJob;
 
 typedef struct BackendSetJob {
     int dbid;
     sds setKey;
     sds returnSetKey;
-    robj *valToBackend;
+    sds valToBackend;
+    int setSyncResult;
+    int setTtl;
 } BackendSetJob;
 
 typedef struct BackendDelJob {
     int dbid;
     sds delKey;
     sds returnDelKey;
+    int delSyncResult;
 } BackendDelJob;
 
 struct redisServer {
@@ -1482,7 +1488,7 @@ struct redisServer {
     int redisoo_get_sync;
     int redisoo_set_sync;
     int redisoo_del_sync;
-    int redisoo_ttl;    /* ttl */
+    int redisoo_get_ttl;    /* ttl for get */
 
     int backend_get_pipe_main_end;
     int backend_get_pipe_work_end;

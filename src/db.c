@@ -562,6 +562,12 @@ void flushallCommand(client *c) {
 void delGenericCommand(client *c, int lazy) {
     int numdel = 0, j;
 
+    if (c->backend_del_sync_reply == 1) {
+        addReplyErrorFormat(c,"sync to backend failed for %s",c->cmd->name);
+        c->backend_del_sync_reply = 0;
+        return;
+    }
+
     for (j = 1; j < c->argc; j++) {
         expireIfNeeded(c->db,c->argv[j]);
         int deleted  = lazy ? dbAsyncDelete(c->db,c->argv[j]) :

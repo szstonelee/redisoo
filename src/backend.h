@@ -20,5 +20,6 @@ void initSpinLock();
 void initBackendZeroJobs();
 void initBackendWorkingThreads();
 void checkNeedToBackendState(client *c);
+void releaseWhenFreeClient(client *c);
 
 #endif
