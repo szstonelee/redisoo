@@ -53,5 +53,8 @@ This time, Cache Through can save the code because every component only need dea
 
 The applications only see the Redis, no database. Redisoo deals with database for you.
 
+# How build and how use
+
+Coming soon ...
 
 
