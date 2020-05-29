@@ -19,7 +19,7 @@ It make Redis the 'Cache Through' pattern to solve some problems.
 
 In "Cache Aside" pattern, there is an inconsistency problem.
 
-<img src="inconsistency.jpg" width=600>
+<img src="inconsistency.jpg" width=800>
 
 In "Cache Through" pattern, no such problem.
 
