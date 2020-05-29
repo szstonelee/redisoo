@@ -273,7 +273,7 @@ endif
 redisoo.o:
 	g++ -std=c++11 -c -o redisoo.o redisoo.cc -I /usr/local/include/soci
 
-# redis-server
+# redis-server (for mysql)
 $(REDIS_SERVER_NAME): $(REDIS_SERVER_OBJ) redisoo.o
 	$(REDIS_LD) -o $@ $^ ../deps/hiredis/libhiredis.a ../deps/lua/src/liblua.a $(FINAL_LIBS) /usr/local/lib/libsoci_core.a /usr/local/lib/libsoci_mysql.a /usr/local/lib/libmysqlclient.a
 
