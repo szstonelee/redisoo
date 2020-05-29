@@ -13,7 +13,7 @@ It makes Redis the 'Cache Through' pattern to solve some problems.
 [You can check this artile for the comparsion](https://codeahoy.com/2017/08/11/caching-strategies-and-how-to-choose-the-right-one/)
 
 
-# The problems Redisoo solve
+# The problems Redisoo solves and the benefits Redisoo brings
 
 ## Consistency
 
@@ -35,9 +35,9 @@ The Cache Through pattern can solve the duplicated action problem.
 
 In peak time, the fan-out number may be hundreds or thousands depending on how many applications you have in a system.
 
-## Duplicated applicaton component for read/write to data store
+## Only one applicaton component for read/write to data store
 
-You need develop a lot of components for the same logic for different application.
+In Cache Aside pattern, you need develop a lot of components for the same logic for different application.
 
 E.g. 
 
@@ -47,9 +47,15 @@ Even in one language with serveral applicatons, if the abstraction or common lib
 
 you need write different codes for the same logic.
 
-This time, Cache Through can save the code because every component only need deal with the basic opertions, 
+Redisoo can save the code because **no SQL anymore**.
 
-**Get/Set/Del** to Redis, no SQL statement for any database. (So no JDBC, no Python Database module) 
+## NO SQL anymore
+
+This time, Redisoo can save the code because every componentS only need deal with the basic opertions, 
+
+**Get/Set/Del** to Redis, 
+
+No SQL statement for any database. So NO JDBC, NO Python Database module. 
 
 The applications only see the Redis, no database. Redisoo deals with database for you.
 
