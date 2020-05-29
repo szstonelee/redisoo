@@ -1055,7 +1055,7 @@ typedef struct BackendSetJob {
     sds returnSetKey;
     sds valToBackend;
     int setSyncResult;
-    int setTtl;
+    long long setTtl;
 } BackendSetJob;
 
 typedef struct BackendDelJob {
@@ -1488,7 +1488,7 @@ struct redisServer {
     int redisoo_get_sync;
     int redisoo_set_sync;
     int redisoo_del_sync;
-    int redisoo_get_ttl;    /* ttl for get */
+    long long redisoo_get_ttl;    /* ttl for get */
 
     int backend_get_pipe_main_end;
     int backend_get_pipe_work_end;

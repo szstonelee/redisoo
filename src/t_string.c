@@ -79,7 +79,8 @@ void setGenericCommand(client *c, int flags, robj *key, robj *val, robj *expire,
     }
 
     if (c->backend_set_sync_reply == 1) {
-        addReplyErrorFormat(c,"sync to backend failed for %s",c->cmd->name);
+        // addReplyErrorFormat(c,"sync to backend failed for %s",c->cmd->name);
+        addReply(c, shared.null[2]);
         c->backend_set_sync_reply = 0;
         return;
     }

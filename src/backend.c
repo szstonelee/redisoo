@@ -20,7 +20,7 @@
 
 typedef struct backendSetInfo {
     sds setValue;      /* the value to set in backend */
-    int setTtl;
+    long long setTtl;
     list* clients;     /* the clients */
 } backendSetInfo;
 
@@ -31,7 +31,7 @@ typedef struct backendSetInfo {
 #define SET_MODE   2
 #define DEL_MODE   3
 
-/* check new read/write candidate job key in main thread, does not need to lock anything 
+/* check new get/set/del candidate key in main thread, no need for lock 
  * if all db backendKeys is empty, return 0
  * else, return 1 with one random candidate job of dbid & key  */
 int _hasAvailableCandidate(int mode, int *dbid, sds *key) {
@@ -41,43 +41,41 @@ int _hasAvailableCandidate(int mode, int *dbid, sds *key) {
     switch(mode) {
     case GET_MODE:
         for (int i = 0; i < server.dbnum; ++i) {
-            if (dictSize(server.db[i].backendGetKeys) == 0) continue;
-
-            it = dictGetIterator(server.db[i].backendGetKeys);
-            entry = dictNext(it);
-            serverAssert(entry != NULL);
-            *key = dictGetKey(entry);
-            *dbid = i;
-            dictReleaseIterator(it);
-            return 1;
+            if (dictSize(server.db[i].backendGetKeys)) {
+                it = dictGetIterator(server.db[i].backendGetKeys);
+                entry = dictNext(it);
+                *key = dictGetKey(entry);
+                *dbid = i;
+                dictReleaseIterator(it);
+                return 1;
+            }
         }
         break;
 
     case SET_MODE:
         for (int i = 0; i < server.dbnum; ++i) {
-            if (dictSize(server.db[i].backendSetKeys) == 0) continue;
-
-            it = dictGetIterator(server.db[i].backendSetKeys);
-            entry = dictNext(it);
-            serverAssert(entry != NULL);
-            *key = dictGetKey(entry);
-            *dbid = i;
-            dictReleaseIterator(it);
-            return 1;
+            if (dictSize(server.db[i].backendSetKeys)) {
+                it = dictGetIterator(server.db[i].backendSetKeys);
+                entry = dictNext(it);
+                *key = dictGetKey(entry);
+                *dbid = i;
+                dictReleaseIterator(it);
+                return 1;
+            }
         }
         break;
 
     case DEL_MODE:
         for (int i = 0; i < server.dbnum; ++i) {
-            if (dictSize(server.db[i].backendDelKeys) == 0) continue;
-
-            it = dictGetIterator(server.db[i].backendDelKeys);
-            entry = dictNext(it);
-            serverAssert(entry != NULL);
-            *key = dictGetKey(entry);
-            *dbid = i;
-            dictReleaseIterator(it);
-            return 1;
+            if (dictSize(server.db[i].backendDelKeys)) {
+                it = dictGetIterator(server.db[i].backendDelKeys);
+                entry = dictNext(it);
+                serverAssert(entry != NULL);
+                *key = dictGetKey(entry);
+                *dbid = i;
+                dictReleaseIterator(it);
+                return 1;
+            }
         }
         break;
 
@@ -92,7 +90,11 @@ void _createNewJobIfHasMoreCandidates(int mode, int need_check_key_first) {
     if (need_check_key_first) {
         // need check key first, including the working key and the return key
         // when main thread deal with concurrent commands from all of clients
-        // check 1. the working thread finish the job, 2. the main thread has already dealt with the return key 
+        // it needs to check:
+        // working key and return key both are empty, then it can go on for the next key
+        // otherwise, it means: (so the main thread needs to stop and return)
+        // either 1. working thread working on the working key; 
+        // or 2. main thread has not clear returned key 
         int all_null;
         rocklock();
         if (mode == GET_MODE)
@@ -114,20 +116,15 @@ void _createNewJobIfHasMoreCandidates(int mode, int need_check_key_first) {
     rocklock();
 
     if (mode == GET_MODE) {
-        serverAssert(server.getJob.getKey == NULL);  
-        serverAssert(server.getJob.returnGetKey == NULL); 
-
-        /* we need a copy key because the key may be released, in future, the copyKey will  
-         * be released by the sdsfree(returnReadKey)
-         * NOTE: not now!!!!, check _clearFinishKey() */
+        serverAssert(server.getJob.getKey == NULL && server.getJob.returnGetKey == NULL);  
+        /* we need a copy key. the copyKey will  be released by in the future by sdsfree(returnReadKey)
+         * check _clearFinishKey() */
         sds copyKey = sdsdup(key);  
         server.getJob.getKey = copyKey;
         server.getJob.dbid = dbid;
 
     } else if (mode == SET_MODE) {
-        serverAssert(server.setJob.setKey == NULL); 
-        serverAssert(server.setJob.returnSetKey == NULL);   
-        serverAssert(server.setJob.valToBackend == NULL);    
+        serverAssert(server.setJob.setKey == NULL && server.setJob.returnSetKey == NULL && server.setJob.valToBackend == NULL); 
         sds copyKey = sdsdup(key); 
         server.setJob.setKey = copyKey;
         server.setJob.dbid = dbid;
@@ -140,8 +137,7 @@ void _createNewJobIfHasMoreCandidates(int mode, int need_check_key_first) {
         server.setJob.setTtl = setInfo->setTtl;
 
     } else {
-        serverAssert(server.delJob.delKey == NULL); 
-        serverAssert(server.delJob.returnDelKey == NULL);       
+        serverAssert(server.delJob.delKey == NULL && server.delJob.returnDelKey == NULL); 
         sds copyKey = sdsdup(key); 
         server.delJob.delKey = copyKey;
         server.delJob.dbid = dbid;
@@ -151,12 +147,12 @@ void _createNewJobIfHasMoreCandidates(int mode, int need_check_key_first) {
     rockunlock();
 }
 
-/* when get command, we need to check whether it will go into backend state 
+/* when get command, we need check for the client whether it will go into backend state 
  * the client should go to the backend state for matching all these conditions 
  * 1. get command 
- * 2. server set config with get statement 
- * 3. the key does not exist (NOTE: the key may be inserted by itself in before)
- * 4. the backend reentry with failed result  
+ * 2. server config with get statement 
+ * 3. the key does not exist
+ * 4. not in the reentry state. The reentry state is the backend returned with failed result but the main thread has not cleared the key  
  * if the client match the above conditions, we return 1 to tell the caller the client needs go into backend state */
 int _checkGetCommandForBackendState(client *c) {
     if (strcmp(c->cmd->name, "get") != 0)
@@ -166,10 +162,9 @@ int _checkGetCommandForBackendState(client *c) {
         return 0;
 
     robj *key = c->argv[1];
-    robj *o = lookupKeyRead(c->db, key);    // will tigger ttl if key exisits
-    
+    robj *o = lookupKeyRead(c->db, key);    // will tigger ttl if key exists    
     if (o != NULL) 
-        return 0;   // if have the key (maybe inserted by myself in previous timing), we return false
+        return 0;   // NOTE: the value could be created by thw working thread from the valFromBackend
 
     // if the client is reentry with failed result (including not reentry but happen with the same key, we treat it as reentry)
     int reentry = 0;
@@ -177,10 +172,13 @@ int _checkGetCommandForBackendState(client *c) {
     if (server.getJob.valFromBackend == NULL && server.getJob.returnGetKey && sdscmp(server.getJob.returnGetKey, key->ptr) == 0)
         reentry = 1;
     rockunlock(); 
+    if (reentry)
+        return 0;
 
-    return reentry ? 0 : 1;
+    return 1;
 }
 
+/* right now, we support four set commands */
 bool _isSetCommnd(char* cmdName) {
     if (strcmp(cmdName, "set") == 0)
         return 1;
@@ -194,22 +192,22 @@ bool _isSetCommnd(char* cmdName) {
         return 0;
 }
 
-/* set the same key, but already has differnt value in backendSetKeys */
+/* if set the same key, but with differnt value in backendSetKeys, we return 1
+ * otehrwise, return 0 including the first new key or same value */
 int _isSameKeyWithDifferentValForSet(client *c) {
     sds key = c->argv[1]->ptr;
     sds val = c->argv[2]->ptr;
 
     dict* d = c->db->backendSetKeys;
-
     dictEntry *de = dictFind(d, key);
     if (de == NULL)
         return 0;       // new key for d
     
     backendSetInfo *setInfo = dictGetVal(de);
     if (sdscmp(setInfo->setValue, val) == 0)
-        return 0;
-    else
-        return 1;
+        return 0;       // same value
+    
+    return 1;   // same key, different value
 }
 
 int _checkSetCommandForBackendState(client *c) {
@@ -253,8 +251,8 @@ int _checkDelCommandForBackendState(client *c) {
 #define OBJ_SET_PX (1<<3)          /* Set if time in ms in given */
 #define OBJ_SET_KEEPTTL (1<<4)     /* Set and keep the ttl */
 
-/* in milliseconds */
-int _getTtlForSetCommand(client *c) {
+/* in milliseconds, if return 0, means no TTL */
+long long _getTtlForSetCommand(client *c) {
     char *cmdName = c->cmd->name;
 
     if (strcmp(cmdName, "set") == 0) {
@@ -318,21 +316,31 @@ int _getTtlForSetCommand(client *c) {
         long long val;
         if (getLongLongFromObject(expire, &val) != C_OK)
             return 0;
-        // UNIT_SECONDS
-        return val*1000;
+        
+        return val*1000;    // UNIT_SECONDS
+
     } else if (strcmp(cmdName, "psetex") == 0) {
         robj *expire = c->argv[2];
         long long val;
         if (getLongLongFromObject(expire, &val) != C_OK)
             return 0;
-        // UNIT_MILLISECONDS
-        return val;
+        
+        return val;     // UNIT_MILLISECONDS
+
     } else {    // include setnx
         return 0;
     }
 }
 
-/* add a key to backend keys (if exist, just add the client to the list) as a candidate */
+sds _getValueFromSetCommand(client *c) {
+    if (strcmp(c->cmd->name, "setex") == 0 ||
+        strcmp(c->cmd->name, "psetex") == 0)
+        return c->argv[3]->ptr;
+    else
+        return c->argv[2]->ptr;     // for "set" && "setnx"
+}
+
+/* add a key to backend keys as a candidate */
 void _addKeyToBackendKeys(int mode, client *c, int sync) {
     sds copyKey = sdsdup(c->argv[1]->ptr);
     dictEntry *de;
@@ -343,11 +351,12 @@ void _addKeyToBackendKeys(int mode, client *c, int sync) {
             dictAdd(c->db->backendGetKeys, copyKey, listCreate());
             de = dictFind(c->db->backendGetKeys, copyKey);
         }
+
     } else if (mode == SET_MODE) {
         de = dictFind(c->db->backendSetKeys, copyKey);
-        int ttl = _getTtlForSetCommand(c);
+        long long ttl = _getTtlForSetCommand(c);
         if (!de) {
-            sds copyValue = sdsdup(c->argv[2]->ptr);
+            sds copyValue = sdsdup(_getValueFromSetCommand(c));
             backendSetInfo *setInfo = zmalloc(sizeof(*setInfo));
             setInfo->setValue = copyValue;
             setInfo->clients = listCreate();
@@ -355,11 +364,11 @@ void _addKeyToBackendKeys(int mode, client *c, int sync) {
             dictAdd(c->db->backendSetKeys, copyKey, setInfo);
             de = dictFind(c->db->backendSetKeys, copyKey);
         } else {
-            // guarentee to have the same value
             backendSetInfo *setInfo = dictGetVal(de);
-            serverAssert(sdscmp(setInfo->setValue, c->argv[2]->ptr) == 0);
+            serverAssert(sdscmp(setInfo->setValue, _getValueFromSetCommand(c)) == 0);  // guarentee to have the same value
             setInfo->setTtl = ttl;
         }
+
     } else {
         de = dictFind(c->db->backendDelKeys, copyKey);
         if (!de) {
@@ -383,8 +392,11 @@ void _addKeyToBackendKeys(int mode, client *c, int sync) {
         sdsfree(copyKey);
 }
 
-/* check whether the client needs to be in the backend state 
- * only when 1. redisoo feature enable 2. get or set command, 3. not in transaction
+/* check whether the client needs to be in the backend state only when 
+ * 1. redisoo feature enable 
+ * 2. get or set command, 
+ * 3. not in transaction
+ * 
  * side effects: 
  * 1. update the backend state of client  
  * 2. update the db->backendKeys, i.e. candidates
@@ -399,10 +411,8 @@ void checkNeedToBackendState(client *c) {
     if (c->flags & CLIENT_MULTI)         
         return;     // if in transaction, return
 
-    int sync;
-
     if (_checkGetCommandForBackendState(c)) {
-        sync = server.redisoo_get_sync;
+        int sync = server.redisoo_get_sync;
         // 1. upate state
         if (sync)
             c->backend_state = CLIENT_BACKEND_GET;
@@ -415,7 +425,7 @@ void checkNeedToBackendState(client *c) {
     }
 
     if (_checkSetCommandForBackendState(c)) {
-        sync = server.redisoo_set_sync;
+        int sync = server.redisoo_set_sync;
         if (sync)
             c->backend_state = CLIENT_BACKEND_SET;
         _addKeyToBackendKeys(SET_MODE, c, sync);
@@ -425,7 +435,7 @@ void checkNeedToBackendState(client *c) {
     }
 
     if (_checkDelCommandForBackendState(c)) {
-        sync = server.redisoo_del_sync;
+        int sync = server.redisoo_del_sync;
         if (sync)
             c->backend_state = CLIENT_BACKEND_DEL;
         _addKeyToBackendKeys(DEL_MODE, c, sync);
@@ -455,11 +465,12 @@ int _getJobInWorkingThread(int mode, int *dbid, sds *key) {
             *dbid = server.setJob.dbid;
             have_job = 1;
         }
+
     } else {
         if (server.delJob.returnDelKey == NULL && server.delJob.delKey != NULL) {
             serverAssert(server.delJob.returnDelKey == NULL);
             *key = server.delJob.delKey;
-            *dbid = server.setJob.dbid;
+            *dbid = server.delJob.dbid;
             have_job = 1;
         }
     }
@@ -471,26 +482,19 @@ int _getJobInWorkingThread(int mode, int *dbid, sds *key) {
 void _implementGetJobByBackendInWorkingThread(sds key, sds *val) {
     char *val_db_ptr;
     size_t val_db_len;
-
     int ret = db_get(server.redisoo_db_type, server.redisoo_connection, server.redisoo_get,
                      key, sdslen(key), &val_db_ptr, &val_db_len);
 
-    if (ret == 0) {
-        /* this means the backend returns a valid response, but the result is wrong */
+    if (ret == 0 || val_db_ptr == NULL) {
+        /* ret == 0, means the backend failed, i.e. like SQL syntax error, 
+         * val_db_ptr == NULL means the backend indicates there is no return value */
         *val = NULL;    
         return;
-    } else if (val_db_ptr == NULL) {
-        // return indication it is NULL
-        *val = NULL;
-        return;
-    }
+    } 
 
     serverAssert(val_db_ptr && val_db_len);
-
     *val = sdsnewlen(val_db_ptr, val_db_len);
-        
-    /* we need to free the memory allocated by the backend api */
-    zfree(val_db_ptr);
+    zfree(val_db_ptr);  /* we need to free the memory allocated by the backend api */
 }
 
 int _implementSetJobByBackendInWorkingThread(sds key, sds val) {
@@ -505,7 +509,7 @@ int _implementDelJobByBackendInWorkingThread(sds key) {
     return ret;    
 }
 
-
+/* working thread is continouslly polling the new job and doing the new job. return 0 if no new job */
 int _haveJobThenDoJobInWorkingThread(int mode) {
     int dbid;
     sds key;
@@ -517,14 +521,14 @@ int _haveJobThenDoJobInWorkingThread(int mode) {
         sds valFromBackend; 
         _implementGetJobByBackendInWorkingThread(key, &valFromBackend);
 
-        /* after finish a job, we need return the job result and notify the main thread */
+        /* after finishing a job, we need return the job result in returnKey  */
         rocklock();
         serverAssert(server.getJob.getKey == key && server.getJob.returnGetKey == NULL); 
-        server.getJob.returnGetKey = key;                  // NOTE: key moved from readKey to returnReadKey
+        server.getJob.returnGetKey = key;                  // NOTE: readKey and returnReadKey are the same object
         server.getJob.valFromBackend = valFromBackend;     // NOTE: valFromBackend could be NULL
         rockunlock();
 
-        /* signal main thread rockPipeReadHandler()*/
+        /* and notify the main thread, check rockPipeReadHandler()*/
         char tmpUseBuf[1] = "g";
         write(server.backend_get_pipe_work_end, tmpUseBuf, 1);
 
@@ -536,19 +540,18 @@ int _haveJobThenDoJobInWorkingThread(int mode) {
         rockunlock(); 
         int ret = _implementSetJobByBackendInWorkingThread(key, valToBackend);
 
-        /* after finish a job, we need return the job result and notify the main thread */
         rocklock();
         serverAssert(server.setJob.setKey == key && server.setJob.returnSetKey == NULL);
         server.setJob.returnSetKey = key;
         server.setJob.setSyncResult = ret;
         rockunlock();
 
-        /* signal main thread _readPipeMainThreadHandler()*/
         char tmpUseBuf[1] = "s";
         write(server.backend_set_pipe_work_end, tmpUseBuf, 1);
 
     } else {
-        int ret = _implementDelJobByBackendInWorkingThread(key);
+        // NOTE: we can not know how many row number been deleted, even delete nothing, ret will be 1
+        int ret = _implementDelJobByBackendInWorkingThread(key);     
 
         rocklock();
         serverAssert(server.delJob.delKey == key && server.delJob.returnDelKey == NULL);
@@ -621,23 +624,28 @@ robj* _createStringObject(sds s) {
         return createRawStringObject(s, val_len);    
 }
 
-/* when finish reading/writing a value from/to backend, the main thread needs to 
- * insert/update the key with the value in the original db if the return value is not null. 
+/* when finish get/set/del a value from/to backend, the main thread needs to 
+ * insert/update/delete the key with the value in the original db if the return value is not null. 
+ * 
+ * For get (resumed clients of sync)
  * If the return value is null, keep the failed value with the return key until all resumed clients process it
+ * which means all resumed sync clients with get commands maybe (probably) return 'NOT FOUND' result to the customers 
  * After all clients relating to the key have been processed, changed the return key to NULL to indicate room for a new job 
  * NOTE1: call in transaction will not be routed here (i.e when transaction, we will skip the backend call) 
- * NOTE2: if key exist because during the time other clients had set the key, we replace the vaild value 
- * NOTE3: if return val is NULL, i.e. backend failed to retrive the value, we will keep the NULL value for the resumed clients 
+ * NOTE2: if the key is created by other clients of other command (like set), the resumed clients will return the vaild value 
+ * NOTE3: if key not exist and return val is NULL, i.e. backend failed to retrive the value, the resumed clients will return 'NOT FOUND' 
  * NOTE4: last we will clear the return key for new room of a new job 
+ * 
+ * For set (resumed clients of sync)
+ * NOTE1: if backend return valid value, the key will be created(or overwrite), and the resumed clients will return OK (or 1/0 for setnx)
+ * NOTE2: if backend return failed, the resumed clients will return error msg (but the key may be valid at the same time)
+ * 
+ * For del (resumed clients of sync)
+ * same as set
  */
-void _clearFinishKey(int mode, int dbid, sds key, sds val, int setOrDelResult, int setTtl) {    
-    listIter li;
-    listNode *ln;
-    list *clients, *copyClients;
-    int ret;
-
+void _clearFinishKey(int mode, int dbid, sds key, sds val, int setOrDelResult, long long setTtl) {    
     if (mode == GET_MODE && val != NULL) {  
-        serverLog(LL_NOTICE, "_clearFinishKey(), GET_MODE, key = %s, val = %s", key, val);
+        // serverLog(LL_NOTICE, "_clearFinishKey(), GET_MODE, key = %s, val = %s", key, val);
         // check t_string.c setGenericCommand() for reference
         robj* keyObj = _createStringObject(key);
         robj* valObj = _createStringObject(val);
@@ -652,7 +660,7 @@ void _clearFinishKey(int mode, int dbid, sds key, sds val, int setOrDelResult, i
         decrRefCount(valObj);   
     } else if (mode == SET_MODE && setOrDelResult) {
         serverAssert(val);
-        serverLog(LL_NOTICE, "_clearFinishKey(), SET_MODE, key = %s, val = %s", key, val);
+        // serverLog(LL_NOTICE, "_clearFinishKey(), SET_MODE, key = %s, val = %s", key, val);
         robj* keyObj = _createStringObject(key);
         robj* valObj = _createStringObject(val);
         genericSetKey(NULL,&server.db[dbid],keyObj,valObj,1,1);
@@ -664,10 +672,28 @@ void _clearFinishKey(int mode, int dbid, sds key, sds val, int setOrDelResult, i
             notifyKeyspaceEvent(NOTIFY_GENERIC,"expire",keyObj,dbid);
         decrRefCount(keyObj);       
         decrRefCount(valObj);   
+    } else if (mode == DEL_MODE && setOrDelResult) {
+        // check db.c delGenericCommand()
+        // serverLog(LL_NOTICE, "_clearFinishKey(), DEL_MODE, key = %s", key);
+        // we do not need to delete, becuase resume will do it (otherwise resume client will return the wrong delete key number)
+        /*
+        robj *keyObj = _createStringObject(key);
+        expireIfNeeded(&server.db[dbid], keyObj);
+        int deleted = dbSyncDelete(&server.db[dbid], keyObj);
+        if (deleted) {
+            signalModifiedKey(NULL, &server.db[dbid], keyObj);
+            notifyKeyspaceEvent(NOTIFY_GENERIC, "del", keyObj, dbid);
+            server.dirty++;
+        }
+        decrRefCount(keyObj);
+        */
     }
 
     /* get all the waiting clients
      * NOTE: clients maybe empty, because client may be disconnected or async call */
+    listIter li;
+    listNode *ln;
+    list *clients, *copyClients;
     if (mode == GET_MODE) {
         clients = dictFetchValue(server.db[dbid].backendGetKeys, key);
     } else if (mode == SET_MODE) {
@@ -685,6 +711,7 @@ void _clearFinishKey(int mode, int dbid, sds key, sds val, int setOrDelResult, i
     }
 
     /* delete the entry in backendKeys, NOTE the clients will be invalid, but we already have the copyClients */
+    int ret;
     if (mode == GET_MODE) {
         ret = dictDelete(server.db[dbid].backendGetKeys, key);
     } else if (mode == SET_MODE) {
@@ -710,9 +737,9 @@ void _clearFinishKey(int mode, int dbid, sds key, sds val, int setOrDelResult, i
 
         _resumeBackendClient(c);
     }
-
     listRelease(copyClients);
 
+    /* clear job resouce and make room for a coming new job */
     rocklock();
     if (mode == GET_MODE) {
         serverAssert(server.getJob.returnGetKey != NULL && server.getJob.getKey == server.getJob.returnGetKey); 
@@ -819,7 +846,7 @@ void _setPipeMainThreadHandler(struct aeEventLoop *eventLoop, int fd, void *clie
     sds finishKey;
     sds valToBackend;
     int setResult;
-    int setTtl;
+    long long setTtl;
 
     /* deal with return result */
     rocklock();

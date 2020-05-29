@@ -563,7 +563,7 @@ void delGenericCommand(client *c, int lazy) {
     int numdel = 0, j;
 
     if (c->backend_del_sync_reply == 1) {
-        addReplyErrorFormat(c,"sync to backend failed for %s",c->cmd->name);
+        addReplyLongLong(c,0);      // when failed, we always return 0 (otherwise, the client will raise exception, e.g. redis-cli)
         c->backend_del_sync_reply = 0;
         return;
     }
