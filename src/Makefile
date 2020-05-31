@@ -275,7 +275,7 @@ redisoo.o:
 
 # redis-server (for mysql)
 $(REDIS_SERVER_NAME): $(REDIS_SERVER_OBJ) redisoo.o
-	$(REDIS_LD) -o $@ $^ ../deps/hiredis/libhiredis.a ../deps/lua/src/liblua.a $(FINAL_LIBS) /usr/local/lib/libsoci_core.a /usr/local/lib/libsoci_mysql.a /usr/local/lib/libmysqlclient.a
+	$(REDIS_LD) -o $@ $^ ../deps/hiredis/libhiredis.a ../deps/lua/src/liblua.a $(FINAL_LIBS) -lsoci_core -lsoci_mysql -lmysqlclient
 
 # redis-sentinel
 $(REDIS_SENTINEL_NAME): $(REDIS_SERVER_NAME)

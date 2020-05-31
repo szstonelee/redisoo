@@ -31,9 +31,9 @@ If applications can not find the key in Redis, they both get the value from data
 
 The second action is a duplicated one, and it can not be avoided in Cache Aside pattern. 
 
-The Cache Through pattern can solve the duplicated action problem. 
+In peak time, the fan-out number could be hundreds or thousands depending on how many applications you have in a system.
 
-In peak time, the fan-out number may be hundreds or thousands depending on how many applications you have in a system.
+Redisoo can solve the duplicated action problem. 
 
 ## Only one applicaton component for read/write to data store
 
@@ -47,15 +47,15 @@ Even in one language with serveral applicatons, if the abstraction or common lib
 
 you need write different codes for the same logic.
 
-Redisoo can save the code because **no SQL anymore**.
+Redisoo can save the code because **NO SQL anymore**.
 
 ## NO SQL anymore
 
-This time, Redisoo can save the code because every componentS only need deal with the basic opertions, 
+This time, Redisoo can save the code because every components only need deal with the basic opertions, 
 
 **Get/Set/Del** to Redis, 
 
-No SQL statement for any database. So NO JDBC, NO Python Database module. 
+No SQL statement for any database. So NO JDBC, NO Python Database module, NO C/C++ database library.
 
 The applications only see the Redis, no database. Redisoo deals with database for you.
 
