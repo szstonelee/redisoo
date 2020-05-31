@@ -12,7 +12,7 @@ extern "C" void *zmalloc(size_t size);
 namespace testmysql {
 
 bool _open_connection(int db_type, char* connection, soci::session* sql) {
-    assert(sql);
+    // assert(sql);
 
     try {
         switch (db_type) {
