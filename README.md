@@ -23,17 +23,25 @@ In "Cache Aside" pattern, there is an inconsistency problem.
 
 In "Cache Through" pattern, Redisoo solves the inconsistent problem.
 
-## Duplicated Action, worst for peak time
+## Avoiding duplicated Read/Write to database, especially for peak time
 
 In the above diagram, suppose that application 1 & 2 get the same key from Redis at the same time.
 
 If applications can not find the key in Redis, they both get the value from database then write it to Redis. 
 
-The second action is a duplicated one, and it can not be avoided in Cache Aside pattern. 
+The second read from database is a duplicated one, and it can not be avoided in Cache Aside pattern. 
 
-In peak time, the fan-out number could be hundreds or thousands depending on how many applications you have in a system.
+The same thing could happend with duplicated write to database.  
 
-Redisoo can solve the duplicated action problem. 
+In peak time, the fan-out number could be hundreds or thousands depending on how many applications you have.
+
+Redisoo can solve the duplicated action problem, 
+
+only **ONE** read/from (or write/to) database needed with thousands application concurrently read or write. 
+
+Yes, there are thousands duplicated read/write to Redis 
+
+but that is why Redis is there as a Cache because we want Redis save the traffic to the backend database.
 
 ## Only one applicaton component for read/write to data store
 
@@ -55,9 +63,13 @@ This time, Redisoo can save the code because every components only need deal wit
 
 **Get/Set/Del** to Redis, 
 
-No SQL statement for any database. So NO JDBC, NO Python Database module, NO C/C++ database library.
+No SELECT/UPDATE/INSERT/DELETE sql statement for any database. 
 
-The applications only see the Redis, no database. Redisoo deals with database for you.
+NO JDBC, NO Python Database module, NO C/C++ database library.
+
+The applications only see the Redis and only code for Redis, no need to code for database. 
+
+Redisoo deals with database for you.
 
 # How build and how use
 
