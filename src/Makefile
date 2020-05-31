@@ -279,7 +279,7 @@ ifeq ($(uname_S),Linux)
 	$(REDIS_LD) -o $@ $^ ../deps/hiredis/libhiredis.a ../deps/lua/src/liblua.a $(FINAL_LIBS) /usr/local/lib64/libsoci_core.a /usr/local/lib64/libsoci_mysql.a /usr/local/lib64/libsoci_mysql.a
 endif
 ifeq ($(uname_S),Darwin)
-	$(REDIS_LD) -o $@ $^ ../deps/hiredis/libhiredis.a ../deps/lua/src/liblua.a $(FINAL_LIBS) /usr/local/lib/libsoci_core.a /usr/local/lib/libsoci_mysql.a /usr/local/lib/libsoci_mysql.a
+	$(REDIS_LD) -o $@ $^ ../deps/hiredis/libhiredis.a ../deps/lua/src/liblua.a $(FINAL_LIBS) /usr/local/lib/libsoci_core.a /usr/local/lib/libsoci_mysql.a /usr/local/lib/libmysqlclient.a
 endif
 
 
