@@ -530,7 +530,8 @@ int _haveJobThenDoJobInWorkingThread(int mode) {
 
         /* and notify the main thread, check rockPipeReadHandler()*/
         char tmpUseBuf[1] = "g";
-        write(server.backend_get_pipe_work_end, tmpUseBuf, 1);
+        ssize_t ret_write = write(server.backend_get_pipe_work_end, tmpUseBuf, 1);
+        UNUSED(ret_write);
 
     } else if (mode == SET_MODE) {
         sds valToBackend;
@@ -547,7 +548,8 @@ int _haveJobThenDoJobInWorkingThread(int mode) {
         rockunlock();
 
         char tmpUseBuf[1] = "s";
-        write(server.backend_set_pipe_work_end, tmpUseBuf, 1);
+        ssize_t ret_write = write(server.backend_set_pipe_work_end, tmpUseBuf, 1);
+        UNUSED(ret_write);
 
     } else {
         // NOTE: we can not know how many row number been deleted, even delete nothing, ret will be 1
@@ -560,7 +562,8 @@ int _haveJobThenDoJobInWorkingThread(int mode) {
         rockunlock();
 
         char tmpUseBuf[1] = "d";
-        write(server.backend_del_pipe_work_end, tmpUseBuf, 1);
+        ssize_t ret_write = write(server.backend_del_pipe_work_end, tmpUseBuf, 1);
+        UNUSED(ret_write);
     }
 
     return 1;
@@ -834,7 +837,8 @@ void _getPipeMainThreadHandler(struct aeEventLoop *eventLoop, int fd, void *clie
     _clearFinishKey(GET_MODE, finishDbid, finishKey, finishVal, 0, 0);
 
     char tmpUseBuf[1];
-    read(fd, tmpUseBuf, 1);     /* maybe unblock the rockdb thread by read the pipe */ 
+    ssize_t ret_read = read(fd, tmpUseBuf, 1);     /* maybe unblock the rockdb thread by read the pipe */ 
+    UNUSED(ret_read);
 }
 
 void _setPipeMainThreadHandler(struct aeEventLoop *eventLoop, int fd, void *clientData, int mask) {
@@ -864,7 +868,8 @@ void _setPipeMainThreadHandler(struct aeEventLoop *eventLoop, int fd, void *clie
     _clearFinishKey(SET_MODE, finishDbid, finishKey, valToBackend, setResult, setTtl);
 
     char tmpUseBuf[1];
-    read(fd, tmpUseBuf, 1);     /* maybe unblock the rockdb thread by read the pipe */ 
+    ssize_t ret_read = read(fd, tmpUseBuf, 1);     /* maybe unblock the rockdb thread by read the pipe */ 
+    UNUSED(ret_read);
 }
 
 void _delPipeMainThreadHandler(struct aeEventLoop *eventLoop, int fd, void *clientData, int mask) {
@@ -890,7 +895,8 @@ void _delPipeMainThreadHandler(struct aeEventLoop *eventLoop, int fd, void *clie
     _clearFinishKey(DEL_MODE, finishDbid, finishKey, NULL, delResult, 0);
 
     char tmpUseBuf[1];
-    read(fd, tmpUseBuf, 1);     /* maybe unblock the rockdb thread by read the pipe */ 
+    ssize_t ret_read = read(fd, tmpUseBuf, 1);     /* maybe unblock the rockdb thread by read the pipe */ 
+    UNUSED(ret_read);
 }
 
 /* this is the read thread entrance, working together with the main thread */
