@@ -276,7 +276,7 @@ redisoo.o:
 # redis-server (for mysql)
 $(REDIS_SERVER_NAME): $(REDIS_SERVER_OBJ) redisoo.o
 ifeq ($(uname_S),Linux)
-	$(REDIS_LD) -o $@ $^ ../deps/hiredis/libhiredis.a ../deps/lua/src/liblua.a $(FINAL_LIBS) /usr/local/lib64/libsoci_core.a /usr/local/lib64/libsoci_mysql.a /usr/local/lib64/libsoci_mysql.a
+	$(REDIS_LD) -o $@ $^ ../deps/hiredis/libhiredis.a ../deps/lua/src/liblua.a $(FINAL_LIBS) /usr/local/lib64/libsoci_core.a /usr/local/lib64/libsoci_mysql.a /usr/lib/x86_64-linux-gnu/libmysqlclient.a
 endif
 ifeq ($(uname_S),Darwin)
 	$(REDIS_LD) -o $@ $^ ../deps/hiredis/libhiredis.a ../deps/lua/src/liblua.a $(FINAL_LIBS) /usr/local/lib/libsoci_core.a /usr/local/lib/libsoci_mysql.a /usr/local/lib/libmysqlclient.a
