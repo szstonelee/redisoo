@@ -63,7 +63,7 @@ So this the second way, use **config set** to change the parameter of Redis (It 
 
 Your can modify the redis.conf file to change the parameters.
 
-Then start the Redis, let the paramter take effect.
+Then start the Redis, let the paramters in redis.conf take effect.
 
 ## Redisoo Config Parameter
 
@@ -94,7 +94,7 @@ config set redisoo_db mysql
 
 The config parameter define how to connect the database.
 
-E.g. MySQL
+E.g. MySQL is installed in the IP 192.168.64.5
 
 * Ip:  192.168.64.5
 * Port: 3306
@@ -102,7 +102,16 @@ E.g. MySQL
 * User: redis (Privilege has been set for database test)
 * Password: 1234abcd
 
-You can set like this
+The SQL statements for MySQL to add a user of redis for password of 1234abcd is like the following (when use root login to MySQL)
+```
+CREATE DATABASE test;
+CREATE USER 'redis'@'localhost' IDENTIFIED BY '1234abcd';
+GRANT ALL PRIVILEGES ON test.* TO 'redis'@'localhost';
+FLUSH PRIVILEGES;
+``` 
+NOTE: you should replace 'loalhost' with the client IP which will connect to MySQL server.
+
+You can set Redisoo like this
 ```
 config set redisoo_connection "host=192.168.64.5 port=3306 db=test user=redis password='1234abcd'"
 ```
@@ -112,10 +121,11 @@ Other Database connection string, [please click here and do your try](http://soc
 
 If something wrong with the connection, you can see the output error message in the Redisoo console, e.g.
 ```
-Connecting to database error! error msg = Access denied for user 'redis;'@'localhost' (using password: YES)
+Connecting to database error! error msg = Access denied for user 'redis'@'localhost' (using password: YES)
 Connecting to database error! error msg = Malformed connection string.
 Connecting to database error! error msg = Can't connect to MySQL server on '127.0.0.1' (61)
 ```
+Check your MySQL config and try to use mysql client tool for some tests to figure out what is wrong with your connection string.
 
 ### get
 
@@ -131,8 +141,14 @@ There are three parameters for [Redis 'get' command](https://redis.io/commands/g
 
 When you want Redisoo read data, i.e the key(value) frmo database, when the key not in Redis, 
 
-You must set *redisoo_get*, like this
+You must set **redisoo_get**, like this
+
 e.g. 
+Suppose we have MySQL database like this:
+```
+CREATE TABLE t1 (name varchar(20) NOT NULL, address varchar(200) NOT NULL, PRIMARY KEY(name));
+INSERT INTO t1 (name, address) VALUES ('szstonelee', 'bay area');
+```
 
 we have a table name 't1', there are two column, the primary key column is 'name' which is varchar, 
 
@@ -148,7 +164,10 @@ it will read the database using the SQL statement like this
 ```
 SELECT address FROM t1  WHERE name = 'szstonelee';
 ```
-
+When you use such Redis command
+```
+get szstonelee
+```
 So you need to use your specific SQL statement like the above example.
 
 When the key has ttl, Redisoo will read the value from database when the key is expired.
