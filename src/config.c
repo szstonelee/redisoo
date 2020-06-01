@@ -2002,6 +2002,8 @@ int parseDbType(char *val) {
         return SqlLite;
     else if (strcmp(db_type, "firebird") == 0)
         return Firebird;
+    else if (strcmp(db_type, "") == 0)
+        return Empty;
     else
         return 0;
 }
@@ -2010,7 +2012,7 @@ static int isValidRedisooDb(char *val, char **err) {
     int db_type_id = parseDbType(val);
 
     if (db_type_id == 0) {
-        *err = "database type unrecognized, need be in [mysql, posgegresql, odbc, oracle, db2, sqllite, firebird]";
+        *err = "database type unrecognized, need be in [mysql, posgegresql, odbc, oracle, db2, sqllite, firebird or empty string]";
         return 0;
     }
 
