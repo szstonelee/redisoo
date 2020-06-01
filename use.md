@@ -3,6 +3,8 @@
 [When you build succesfully](build.md), you can try Redisoo, just run
 
 ```
+cd
+cd redisoo
 cd src
 ./redis-server
 ```
@@ -15,9 +17,9 @@ There are several set of config parameters for Redisoo, just like config paramet
 
 Please reference [Redis Config](https://redis.io/topics/config)
 
-You can use config paramter in three ways
+You can use config paramter in three ways in Redis (**the same way as Redisoo**)
 
-### start with the paramter
+### 1. launch with the paramter
 
 e.g.
 
@@ -30,20 +32,22 @@ e.g.
 
  Just like **key/value** pair
 
- ### start, then modify parameter online
+ ### 2. modify parameter online
 
  e.g.
 ```
 ./redis-server --bind 0.0.0.0
 ```
-then start a client like redis-cli, then connect to Redis, assume your Redis runing at IP address: 192.168.64.5 
+NOTE: bind is a parameter, but it can not be modified online.
+
+then start a client like redis-cli to connect to Redis, assume your Redis runing at IP address: 192.168.64.5 
 ```
 ./redis-cli -h 192.168.64.5
 ```
 
-Let us try "maxclients", which limit how many client can use Redis.
+Let us try the config parameter of "maxclients", which limit how many clients can use Redis.
 
-at redis-cli, we issue such command
+at the first redis-cli, we issue such command
 ```
 config set maxclients 1
 ```
@@ -57,25 +61,25 @@ Redis will response as the following
 (error) ERR max number of clients reached
 ```
 
-So this the second way, use **config set** to change the parameter of Redis (It is the same idea for Redisoo)
+So this the second way, use **config set** to change the parameter of Redis
 
-### Start with config file
+### 3. use config file
 
 Your can modify the redis.conf file to change the parameters.
 
-Then start the Redis, let the paramters in redis.conf take effect.
+Then start Redis, let the paramters in redis.conf take effect.
 
-## Redisoo Config Parameter
+## Redisoo Config Parameters
 
 ### redisoo_db
 
-Default is "". When it is the default, Redisoo disable any support for database. 
+Default is empty string of "". When it is the default, Redisoo disable connection to database. 
 
-So when --redisoo_db "", it is a pure Redis.
+So when redisoo_db == "", it is a pure Redis.
 
 You can use config set anytime to change Redisoo to be a pure Redis.
 
-But if you want Redisoo connect to the database, you need set for the current values:
+But if you want Redisoo connect to database, you need set for the following values:
 
 * mysql
 * posgegresql
@@ -92,9 +96,9 @@ config set redisoo_db mysql
 
 ### redisoo_connection
 
-The config parameter define how to connect the database.
+**redisoo_connection** is the connection string for the way to connect to the database.
 
-E.g. MySQL is installed in the IP 192.168.64.5
+E.g. MySQL is installed in IP 192.168.64.5 with default listening port 3306
 
 * Ip:  192.168.64.5
 * Port: 3306
@@ -102,7 +106,8 @@ E.g. MySQL is installed in the IP 192.168.64.5
 * User: redis (Privilege has been set for database test)
 * Password: 1234abcd
 
-The SQL statements for MySQL to add a user of redis for password of 1234abcd is like the following (when use root login to MySQL)
+The SQL statements for MySQL to add a user of redis for password of 1234abcd is like the following 
+(when use root to login to MySQL)
 ```
 CREATE DATABASE test;
 CREATE USER 'redis'@'localhost' IDENTIFIED BY '1234abcd';
@@ -127,9 +132,9 @@ Connecting to database error! error msg = Can't connect to MySQL server on '127.
 ```
 Check your MySQL config and try to use mysql client tool for some tests to figure out what is wrong with your connection string.
 
-### get
+### parameters for get command for Redis
 
-You can set (or do not set) the get command for the database.
+You can enable (or disable) the get command of Redis to use database.
 
 There are three parameters for [Redis 'get' command](https://redis.io/commands/get)
  
@@ -144,21 +149,22 @@ When you want Redisoo read data, i.e the key(value) frmo database, when the key 
 You must set **redisoo_get**, like this
 
 e.g. 
-Suppose we have MySQL database like this:
+Suppose we have MySQL table in database 'test' like this:
 ```
 CREATE TABLE t1 (name varchar(20) NOT NULL, address varchar(200) NOT NULL, PRIMARY KEY(name));
 INSERT INTO t1 (name, address) VALUES ('szstonelee', 'bay area');
 ```
 
-we have a table name 't1', there are two column, the primary key column is 'name' which is varchar, 
+We have a table name 't1', there are two column, the primary key column is 'name' which is varchar, 
 
 and the value column mapping to 'name' is 'address' which is varchar too.
 
+Then we set redisoo_get like this:
 ```
 config set redisoo_get "select address from t1 where name = :name"
 ```
 
-So when redis client send the command 'get szstonelee', and Redis can not find the key 'szstonelee', 
+So when redis client send the command 'get szstonelee', and Redisoo can not find the key 'szstonelee', 
 
 it will read the database using the SQL statement like this 
 ```
@@ -182,7 +188,7 @@ SELECT NULL FROM t1 WHERE name = 'not_exist'
 ```
 if SELECT return zero rows to Redisoo, Redisoo treats it as an error and will show an error message in the console of Redisoo server.
  
-``
+```
 No row return with get statement!
 ```
 
@@ -228,7 +234,7 @@ You can use the set, expire command to set different keys for different TTL.
 
 redisoo_get_ttl is for all keys from database when redisoo_get_ttl > 0.
 
-### set
+### parameters fro set comands for Redis
 
 Redisoo support four set command in Redis, they are 
 * [set](https://redis.io/commands/set)
@@ -270,7 +276,7 @@ But if there is something wrong with the database, the value has been changed in
 
 So there are some chance of inconsistency. But the tradeoff is that the client can get the response as quick as possible.
 
-### del
+### parameters for del command for Redis
 
 For Redis [del command](https://redis.io/commands/del), but NOTE: only for one key.
 
