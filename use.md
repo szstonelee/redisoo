@@ -103,7 +103,7 @@ E.g. MySQL is installed in IP 192.168.64.5 with default listening port 3306
 * Ip:  192.168.64.5
 * Port: 3306
 * Database: test
-* User: redis (Privilege has been set for database test)
+* User: redis
 * Password: 1234abcd
 
 The SQL statements for MySQL to add a user of redis for password of 1234abcd is like the following 
@@ -144,7 +144,7 @@ There are three parameters for [Redis 'get' command](https://redis.io/commands/g
 
 #### redisoo_get
 
-When you want Redisoo read data, i.e the key(value) frmo database, when the key not in Redis, 
+When you want Redisoo read data, i.e the key(value) from database when the key not in cache, 
 
 You must set **redisoo_get**, like this
 
@@ -218,7 +218,7 @@ the client always get 'nil' response but the response is as quick as possible.
 
 Sometime later, the client try the same key, this time, the value has been read by Redisoo from the database,
 
-the client get the value successfully and as quick as possible.
+the client can get the value successfully.
 
 #### redisoo_get_ttl
 
@@ -226,7 +226,7 @@ When you want to set the key TTL automatically with get command which value is f
 
 you can set the **redisoo_get_ttl** parameter. The unit is milli seconds.
 
-If you set it to zero, it means NO TTL.
+If you set it to 0, it means NO TTL.
 
 The default value for redisoo_get_ttl is ZERO.
 
@@ -278,9 +278,9 @@ So there are some chance of inconsistency. But the tradeoff is that the client c
 
 ### parameters for del command for Redis
 
-For Redis [del command](https://redis.io/commands/del), but NOTE: only for one key.
+For Redis [del command](https://redis.io/commands/del), but NOTE: only for one key. 
 
-If you use del for multi key, it will delete these key in Redisoo but no effect for the database.
+If you use del for multi key, it will delete these key in cache but no effect for database.
 
 There are two config parameters for del.
 
@@ -297,6 +297,8 @@ NOTE:
 
 We can not know how many rows have been deleted from the database. 
 
+And Redisoo do not know whether you use DELETE statement. If you like, you can use SELECT for del command, but no deletion with db.
+
 So maybe no row has been deleted, but the client get a successful response from Redisoo.
 
 
@@ -306,7 +308,7 @@ Like the redisoo_set_sync.
 
 When redisoo_del_sync == yes
 
-The client will wait until the key has been deleted from the database
+The client will wait until the key has been deleted from the database. (Acutally, the sql statement finished from database)
 
 And Redisoo will guarentee the key is consistenet with the database. 
 
@@ -316,4 +318,6 @@ When redisoo_del_sync == no
 
 The client will get the response as quick as possible. 
 
-There are some change with incomnsistency when something is wrong with the database.
+There are some change with incomnsistency when something is wrong with the database 
+
+but as tradeoff, the client get the response as quick as possible.
