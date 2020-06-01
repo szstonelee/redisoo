@@ -9,7 +9,8 @@ enum DatabaseType {
   Odbc = 4,
   Db2 = 5,
   SqlLite = 6,  
-  Firebird = 7
+  Firebird = 7,
+  Empty = 8,
 };
 
 int db_get(int db_type, char* connection, char* statement, 
