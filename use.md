@@ -85,6 +85,11 @@ But if you want Redisoo connect to the database, you need set for the current va
 * sqllite
 * firebird
 
+e.g.
+```
+config set redisoo_db mysql
+```
+
 ### redisoo_connection
 
 The config parameter define how to connect the database.
@@ -104,6 +109,13 @@ config set redisoo_connection "host=192.168.64.5 port=3306 db=test user=redis pa
 Other parameter for the connection string for MySQL, [please reference here](http://soci.sourceforge.net/doc/master/backends/mysql/)
 
 Other Database connection string, [please click here and do your try](http://soci.sourceforge.net/doc/master/backends/)
+
+If something wrong with the connection, you can see the output error message in the Redisoo console, e.g.
+```
+Connecting to database error! error msg = Access denied for user 'redis;'@'localhost' (using password: YES)
+Connecting to database error! error msg = Malformed connection string.
+Connecting to database error! error msg = Can't connect to MySQL server on '127.0.0.1' (61)
+```
 
 ### get
 
@@ -150,6 +162,10 @@ like
 SELECT NULL FROM t1 WHERE name = 'not_exist'
 ```
 if SELECT return zero rows to Redisoo, Redisoo treats it as an error and will show an error message in the console of Redisoo server.
+ 
+``
+No row return with get statement!
+```
 
 #### redisoo_get_sync
 
