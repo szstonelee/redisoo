@@ -3,7 +3,7 @@ import random
 import threading
 import time
 
-POOL = redis.ConnectionPool(host='127.0.0.1',
+POOL = redis.ConnectionPool(host='192.168.64.5',
                             port='6379',
                             db=0,
                             decode_responses=True,

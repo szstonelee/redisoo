@@ -73,6 +73,8 @@ Redisoo deals with database for you.
 
 # How build and how use
 
-Coming soon ...
+[How build](build.md)
+
+[How Use](use.md)
 
 
