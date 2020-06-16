@@ -25,7 +25,7 @@ applications need to connect to backend database and **SELECT** the key/value fr
 
 Then applications need to write the key/value to Redis by using Redis set or setex command
 
-so next time application can get the the key/value in Redis memory.
+so next time application can get the key/value from Redis memory.
 
 When applications write the new value of the key, 
 
@@ -73,15 +73,15 @@ With thousands concurrent applications, there are thousands duplicated read/writ
 
 but that is why Redisoo is there as a cache because we want cache save traffic to database.
 
-## Only one applicaton component for read/write to data store
+## Only one code component for read/write to data store
 
-In Cache Aside pattern, you need code a lot of components for the same logic for different application.
+In Cache Aside pattern, applications need have various components for the same logic.
 
 e.g. 
 
-If you have Python/Java/Php/C++ application, you need code the same logic for all kinds of language.
+If you have Python/Java/Php/C++ applications, you need code the same logic for all kinds of language.
 
-Even in one language with serveral different applicatons, if abstraction or common library is not good enough, 
+Even in one programming language, if the abstraction or the common library is not good enough, 
 
 you need write different code for the same logic like 'SELECT/INSERT/UPDATE/DELETE'.
 
@@ -89,19 +89,19 @@ Redisoo can save the code because **NO SQL anymore**.
 
 ## NO SQL anymore
 
-This time, Redisoo can save the code because every application only needs deal with the basic opertions, 
+This time, Redisoo can simplify the code because all applications only need deal with the basic operations, 
 
 **GET/SET/DEL** to Redis, 
 
-No SELECT/UPDATE/INSERT/DELETE SQL statement for any database. 
+No SELECT/UPDATE/INSERT/DELETE SQL statements for any database. 
 
 No JDBC, No Python Database module, No C/C++ database library.
 
-Applications only need to use Redis client module, and do 'GET/SET/DEL' of Redis commands.
+Applications only need to use Redis client module, and do simple 'GET/SET/DEL' commands of Redis.
 
-The applications only see Redis and only code for Redis, no need to code for database. 
+The applications only see Redis and only interact with Redis. 
 
-Redisoo deals with database for you.
+Redisoo deals with database for applications.
 
 # How build and how use
 
