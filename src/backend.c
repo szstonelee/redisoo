@@ -179,7 +179,7 @@ int _checkGetCommandForBackendState(client *c) {
 }
 
 /* right now, we support four set commands */
-bool _isSetCommnd(char* cmdName) {
+int _isSetCommnd(char* cmdName) {
     if (strcmp(cmdName, "set") == 0)
         return 1;
     else if (strcmp(cmdName, "setex") == 0)
