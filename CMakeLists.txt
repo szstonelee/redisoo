@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.15)
 
 project(redisoo)
 
+set(CMAKE_CXX_STANDARD 11)
+
 add_subdirectory(deps)
 
 #execute_process(
@@ -31,8 +33,6 @@ set(SRC_SERVER
   src/backend.c src/redisoo.cc
 )
 
-set(CMAKE_CXX_STANDARD 11)
-set(SOCI_CXX11 ON)
 
 add_executable(redisoo ${SRC_SERVER})
 
