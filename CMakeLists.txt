@@ -40,7 +40,7 @@ target_include_directories(redisoo PUBLIC src deps/lua/src deps/hiredis deps/lin
 
 set_property(TARGET redisoo PROPERTY C_STANDARD 99)
 set_property(TARGET redisoo PROPERTY CXX_STANDARD 11)
-set_property(TARGET redisoo PROPERTY CMAKE_CXX_STANDARD 11)
+#set_property(TARGET redisoo PROPERTY CMAKE_CXX_STANDARD 11)
 set_property(TARGET redisoo PROPERTY CXX_STANDARD_REQUIRED ON)
 
 add_custom_target(soci_core_static_lib COMMAND make WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/deps/soci)
