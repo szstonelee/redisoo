@@ -5,10 +5,12 @@ project(redisoo)
 
 add_subdirectory(deps)
 
-execute_process(
-  COMMAND sh -c ./mkreleasehdr.sh
-  WORKING_DIRECTORY ${REDIS_ROOT}/src/
-)
+#execute_process(
+#  COMMAND sh -c ./mkreleasehdr.sh
+#  WORKING_DIRECTORY ${REDIS_ROOT}/src/
+#)
+
+add_custom_target(release_header COMMAND sh -c ./mkreleasehdr.sh WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src)
 
 set(SRC_SERVER
   src/adlist.c src/quicklist.c src/ae.c src/anet.c src/dict.c src/server.c 
