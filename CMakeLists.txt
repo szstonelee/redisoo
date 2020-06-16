@@ -7,12 +7,6 @@ set(CMAKE_CXX_STANDARD 11)
 
 add_subdirectory(deps)
 
-#execute_process(
-#  COMMAND sh -c ./mkreleasehdr.sh
-#  WORKING_DIRECTORY ${REDIS_ROOT}/src/
-#)
-
-
 set(SRC_SERVER
   src/adlist.c src/quicklist.c src/ae.c src/anet.c src/dict.c src/server.c 
   src/sds.c src/zmalloc.c src/lzf_c.c src/lzf_d.c src/pqsort.c src/zipmap.c
@@ -32,7 +26,6 @@ set(SRC_SERVER
   src/sha256.c src/timeout.c src/setcpuaffinity.c
   src/backend.c src/redisoo.cc
 )
-
 
 add_executable(redisoo ${SRC_SERVER})
 

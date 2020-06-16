@@ -322,7 +322,7 @@ There are some change with incomnsistency when something is wrong with the datab
 
 but as tradeoff, the client get the response as quick as possible.
 
-## Start Redisoo Examples
+## Run Redisoo Examples
 
 ### Run with config arguments
 

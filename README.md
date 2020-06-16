@@ -1,33 +1,45 @@
 
 # What is Redisoo?
 
-Redisoo pronouces /rediso͞o/, means **Redis + Through**.
+Redisoo pronouces /rediso͞o/, meaning **Redis + Through**.
 
-In short, Redisoo makes Redis directly connect to the backend database, 
+In short, Redisoo makes Redis connect to backend database directly, 
 
 including MySQL, PostegreSQL, Oracle, ODBC(SQL Server), SqlLite, DB2, Firbird.
 
-It makes Redis the 'Cache Through' pattern to solve some problems.
+It makes Redis **Cache Through** to solve some problems which are described in details below.
 
 # Cache Through vs Cache Aside
 
-We usually use Redis as cache for database. 
+We usually use Redis as cache for other backend database like MySQL, PostegreSQL, SQL Server. 
 
-But always applications use Redis as **Cache Aside** pattern, which means they need deal with Redis and database at the same time.
+Redis only support **Cache Aside** pattern, which means applications need to deal with Redis and database at the same time.
 
-E.g.
+e.g.
 
 When applications read a key/value, they first try to read it from Redis. 
 
-If Redis responses that the key is not there, applications need to connect to database and **SELECT** the key/value from db. 
+If Redis responses that the key is not in its memory, 
 
-Then applications need to write the key/value to Redis (by using Redis set command) 
+applications need to connect to backend database and **SELECT** the key/value from db. 
 
-because next time Redis will response them the key/value is there in Redis memory. 
+Then applications need to write the key/value to Redis by using Redis set or setex command
 
-Cache can be used as **Cache Through** pattern, which means cache can connect to database and **SELECT** key/value for applications.
+so next time application can get the the key/value in Redis memory.
 
-But Redis does not support **Cache Through** pattern. That is why Redisoo is here.
+When applications write the new value of the key, 
+
+they need to write the key/value to backend database and Redis (or just simply delete the key from Redis).
+
+Cache can be used as **Cache Through** pattern, 
+
+which means cache can connect to database directly and **SELECT** key/value for applications
+
+so applications only deal with cache and have no idea about backend database.
+
+Redis does not support **Cache Through**. 
+
+But Redisoo can do it and support all Redis features.
 
 [You can check this artile for the comparsion](https://codeahoy.com/2017/08/11/caching-strategies-and-how-to-choose-the-right-one/)
 
@@ -65,11 +77,11 @@ but that is why Redisoo is there as a cache because we want cache save traffic t
 
 In Cache Aside pattern, you need code a lot of components for the same logic for different application.
 
-E.g. 
+e.g. 
 
 If you have Python/Java/Php/C++ application, you need code the same logic for all kinds of language.
 
-Even in one language with serveral different applicatonss, if abstraction or common library is not good enough, 
+Even in one language with serveral different applicatons, if abstraction or common library is not good enough, 
 
 you need write different code for the same logic like 'SELECT/INSERT/UPDATE/DELETE'.
 
