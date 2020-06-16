@@ -13,7 +13,9 @@ It makes Redis **Cache Through** to solve some problems which are described in d
 
 We usually use Redis as cache for other backend database like MySQL, PostegreSQL, SQL Server. 
 
-Redis only supports **Cache Aside** pattern, which means applications need to deal with Redis and database at the same time.
+Redis only supports **Cache Aside** pattern, 
+
+which means applications need to deal with Redis and database at the same time.
 
 e.g.
 

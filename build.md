@@ -31,6 +31,7 @@ sudo apt purge --auto-remove cmake
 wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
 ```
 3. Add the repository to your sources list
+
 a. For Ubuntu Focal Fossa (20.04)
 ```
 sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main'     
