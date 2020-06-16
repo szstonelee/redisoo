@@ -134,9 +134,14 @@ After cmake .., you can see the following screen to check whether MySQL is OK in
 
 If success, there are only some warning but no error messages. You can check
 ```
+cd lib
 ls -all redisoo
 ```
 If you can see the file of redisoo, the build is finished!
+
+NOTE: The executable file 'redisoo' is in the sub-folder 'lib' of the 'build' folder 
+
+because redisoo need the dynamic library such as libsoci_core and libsoci_mysql (for MySQL).
 
 And you can try to run it
 ```

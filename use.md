@@ -5,8 +5,8 @@
 ```
 cd
 cd redisoo
-cd src
-./redis-server
+cd lib
+./redisoo
 ```
 
 That is it!!!
@@ -236,7 +236,7 @@ redisoo_get_ttl is for all keys from database when redisoo_get_ttl > 0.
 
 ### parameters fro set comands for Redis
 
-Redisoo support four set command in Redis, they are 
+Redisoo support four set commands in Redis, they are 
 * [set](https://redis.io/commands/set)
 * [setex](https://redis.io/commands/setex)
 * [psetex](https://redis.io/commands/psetex)
@@ -321,3 +321,36 @@ The client will get the response as quick as possible.
 There are some change with incomnsistency when something is wrong with the database 
 
 but as tradeoff, the client get the response as quick as possible.
+
+## Start Redisoo Examples
+
+### Run with config arguments
+
+```
+cd
+cd redisoo
+cd lib
+./redisoo --bind 0.0.0.0 --redisoo_db mysql --redisoo_connection "host=192.168.64.5 port=3306 db=test user=redis password='1234abcd'" --redisoo_get "select address from t1 where name = :name" --redisoo_get_sync yes --redisoo_get_ttl 60000
+```
+
+### Run then change config arguments
+
+```
+cd 
+cd redisoo
+cd lib
+./redisoo --bind 0.0.0.0
+```
+
+then in the client machine, start redis-cli, like this (Suppose redisoo run in IP: 192.168.64.1)
+```
+./redis-cli -h 192.168.64.1
+```
+in the redis-cli terminal, run the following comand
+```
+config set redisoo_db mysql
+config set redisoo_connection "host=192.168.64.5 port=3306 db=test user=redis password='1234abcd'"
+config set redisoo_get "select address from t1 where name = :name"
+config set redisoo_get_sync yes
+config set redisoo_get_ttl 60000
+```
