@@ -22,7 +22,7 @@ PROJECT(hiredis VERSION "${VERSION}")
 
 SET(ENABLE_EXAMPLES OFF CACHE BOOL "Enable building hiredis examples")
 
-ADD_LIBRARY(hiredis SHARED
+ADD_LIBRARY(hiredis STATIC
     async.c
     dict.c
     hiredis.c

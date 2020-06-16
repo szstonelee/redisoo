@@ -1,4 +1,4 @@
-#include "soci.h"
+#include "soci/soci.h"
 #include "redisoo.h"
 
 #include <iostream>
