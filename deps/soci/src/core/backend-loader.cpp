@@ -200,10 +200,18 @@ void do_register_backend(std::string const & name, std::string const & shared_ob
     // - otherwise (shared_object not provided or empty):
     //   - file named libsoci_NAME.so.SOVERSION is searched in the list of search paths
 
+    std::string err_msg;
     soci_handler_t h = 0;
     if (shared_object.empty() == false)
     {
         h = DLOPEN(shared_object.c_str());
+        if (0 == h) {
+            err_msg += "shared_object not empty, DLOPEN() failed, shared_object = ";
+            err_msg += shared_object;
+            err_msg += ", dlerror() = ";
+            err_msg += dlerror();
+            err_msg += "\n";
+        }
     }
     else
     {
@@ -211,6 +219,12 @@ void do_register_backend(std::string const & name, std::string const & shared_ob
         h = DLOPEN(LIBNAME(name).c_str());
         if (0 == h)
         {
+            err_msg += "try system paths, DLOPEN() failed, LIBNAME(name) = ";
+            err_msg += LIBNAME(name);
+            err_msg += ", dlerror() = ";
+            err_msg += dlerror();
+            err_msg += "\n";
+
             // try all search paths
             for (std::size_t i = 0; i != search_paths_.size(); ++i)
             {
@@ -221,13 +235,22 @@ void do_register_backend(std::string const & name, std::string const & shared_ob
                     // already found
                     break;
                 }
-             }
-         }
+
+                err_msg += "search paths, i = ";
+                err_msg += std::to_string(i);
+                err_msg += ", fullFileName = ";
+                err_msg += fullFileName;
+                err_msg += ", dlerror() = ";
+                err_msg += dlerror();
+                err_msg += "\n";
+            }
+        }
     }
 
     if (0 == h)
     {
-        throw soci_error("Failed to find shared library for backend " + name);
+        // throw soci_error("Failed to find shared library for backend " + name);
+        throw soci_error("Failed to find shared library for backend " + name + "\n" + "err_msg = " + err_msg);
     }
 
     std::string symbol = "factory_" + name;
