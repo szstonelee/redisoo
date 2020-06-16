@@ -31,6 +31,8 @@ set(SRC_SERVER
   src/backend.c src/redisoo.cc
 )
 
+set(SOCI_CXX11 ON)
+
 add_executable(redisoo ${SRC_SERVER})
 
 add_custom_target(release_header COMMAND sh -c ./mkreleasehdr.sh WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src)
@@ -57,6 +59,7 @@ target_link_libraries(redisoo
     PRIVATE lua_static
     PRIVATE linenoise
     PRIVATE hiredis
+    PRIVATE ${CMAKE_DL_LIBS}
     PRIVATE soci
 )
 
