@@ -98,7 +98,7 @@ config set redisoo_db mysql
 
 **redisoo_connection** is the connection string for the way to connect to the database.
 
-e.g. MySQL is installed in IP 192.168.64.5 with default listening port 3306
+e.g. MySQL server is installed in IP 192.168.64.5 with default listening port 3306
 
 * Ip:  192.168.64.5
 * Port: 3306
@@ -114,7 +114,19 @@ CREATE USER 'redis'@'localhost' IDENTIFIED BY '1234abcd';
 GRANT ALL PRIVILEGES ON test.* TO 'redis'@'localhost';
 FLUSH PRIVILEGES;
 ``` 
-NOTE: you should replace 'loalhost' with the client IP which will connect to MySQL server.
+NOTE: you should replace 'localhost' with the IP address where redisoo runs.
+
+TIP1: you can use the following MySQL SQL statement to change the user ip address
+```
+SELECT User, Host FROM mysql.user;
+RENAME user 'redis'@'localhost' to 'redis'@'192.168.64.%';
+```
+
+TIP2: MySQL server bind ip address may be 127.0.0.1, you can changed it to 0.0.0.0
+```
+sudo find /etc -name my.cnf (and go on to find the correct config file of MySQL)
+sudo vi <your MySQL server config file> and changed bind-address = 127.0.0.1
+```
 
 You can set Redisoo like this
 ```
