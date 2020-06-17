@@ -1,6 +1,6 @@
 # How Build (example of MySQL)
 
-I changed the build from make to cmake for Redisoo. It makes the build process easier.
+I changed the build from make to cmake for Redisoo. It makes the build process easier. (Reference: [old build](build_old.md))
 
 ## What You need
 

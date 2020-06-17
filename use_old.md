@@ -1,6 +1,8 @@
 # How Use (example of MySQL)
 
-[When you build succesfully](build.md), you can try Redisoo, just run
+NOTE: this is the old manual relating to the old build. [Check the new one here](use.md)
+
+[When you build succesfully](build_old.md), you can try Redisoo, just run
 
 ```
 cd

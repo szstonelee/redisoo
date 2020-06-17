@@ -1,5 +1,7 @@
 # How Build (example of MySQL)
 
+NOTE: this is the old way of building by make. [Check the new way of build by cmake](build.md). 
+
 The build of Redisoo is very complicated, because it depends on many libraries. 
 
 And these libraries are subtle.
@@ -332,6 +334,6 @@ cd src
 
 ## At last, how use Redisoo
 
-[Click here for more](use.md)
+[Click here for more -- NOTE: old use manual relating to old build](use_old.md)
 
 
