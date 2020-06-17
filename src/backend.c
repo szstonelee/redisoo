@@ -193,7 +193,7 @@ int _isSetCommnd(char* cmdName) {
 }
 
 /* if set the same key, but with differnt value in backendSetKeys, we return 1
- * otehrwise, return 0 including the first new key or same value */
+ * otherwise, return 0 including the first new key or same value */
 int _isSameKeyWithDifferentValForSet(client *c) {
     sds key = c->argv[1]->ptr;
     sds val = c->argv[2]->ptr;
@@ -208,6 +208,29 @@ int _isSameKeyWithDifferentValForSet(client *c) {
         return 0;       // same value
     
     return 1;   // same key, different value
+}
+
+/* if the value of set already has the same value in db, we return 1
+ * otherwise, including 1: no key in db; 2: value different, we return 0
+ * this avoid the concurrent duplicated write for the backend databsase */
+int _isSameValueInDbForSet(client *c) {
+    sds key = c->argv[1]->ptr;
+    sds val = c->argv[2]->ptr;
+
+    robj *o = lookupKeyRead(c->db, key);    // will tigger ttl if key exists    
+    if (o == NULL) 
+        return 0;   
+
+    return o->type == OBJ_STRING && sdscmp(val, o->ptr) == 0 ? 1 : 0;
+}
+
+/* check whether the key in db
+ * if the key not in db (NOTE: not expired), we return 1; otherwise, we return 0
+ * it can avoid the duplicated delete to the backend database for concurrent client */
+int _isNoKeyInDbDictForDel(client *c) {
+    sds key = c->argv[1]->ptr;
+    dictEntry *de = dictFind(c->db->dict,key);
+    return de == NULL ? 1 : 0;
 }
 
 int _checkSetCommandForBackendState(client *c) {
@@ -228,6 +251,9 @@ int _checkSetCommandForBackendState(client *c) {
     if (_isSameKeyWithDifferentValForSet(c))
         return 0;
 
+    if (_isSameValueInDbForSet(c))
+        return 0;
+
     return 1;
 }
 
@@ -240,6 +266,9 @@ int _checkDelCommandForBackendState(client *c) {
 
     if (c->argc > 2)
         return 0;   // we only support one key deletion
+
+    if (_isNoKeyInDbDictForDel(c))      // avoid duplicated delete for backend
+        return 0;
 
     return 1;
 }
