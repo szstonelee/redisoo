@@ -2,7 +2,7 @@
 
 I changed the build from make to cmake for Redisoo. It makes the build process easier.
 
-## What You need before build
+## What You need
 
 ### Build Tools
 
@@ -18,8 +18,9 @@ But the cmake version is not the latest. You can check your cmake version
 ```
 cmake --version
 ```
+If your cmake version is lower than 3.15 or does not have cmake, follow the following steps.
 
-### upgrade cmake to the latest version in Linux
+### upgrade/install cmake to the latest version in Linux
 
 Because cmake needs the latest version, you can do something as follow to upgrade your cmake
 1. Remove old version of cmake
@@ -61,6 +62,8 @@ As of June 2020, the latest cmake version is 3.17.
 2. SOCI (if useing MySQL, you need install MySQL C Client Library first)
 3. Jemaloc (only for Linux, already in Makefile of Redisoo)
 
+The following sections will guide you to install the libraries.
+
 ## How install MySQL C Client Library
 
 ### Reference Website
@@ -76,7 +79,7 @@ Or you can use the following simpler ways
 ```
 brew install mysql-connector-c
 ```
-### Linux (my VM is Ubuntu 18.04 LTS of [Multipass](https://github.com/canonical/multipass))
+### Linux (my VM is Ubuntu 18.04, 16.04 LTS of [Multipass](https://github.com/canonical/multipass))
 
 ```
 sudo apt-get update
@@ -92,15 +95,13 @@ sudo find /usr -name libmysqlclient.so (For Linux)
 ```
 Actually, the static lib, libmysqlclient.a, is useless, because SOCI use dynamic lib loading
 
-You can check the redisoo Makefile in src direcectory, there is no word about mysql!!!
-
 ## How build SOCI
 
-I have included SOCI in the deps folder, and add it to the cmake files.
+I have included SOCI source code files (and modified one) in the deps folder.
 
 So just go on to build the Redisoo.
 
-If you want to get some refeference about SOCI, check the following links:
+If you want to know more about SOCI, check the following links:
 
 http://soci.sourceforge.net/
 
@@ -123,7 +124,7 @@ cmake ..
 make
 ```
 
-After cmake .., you can see the following screen to check whether MySQL is OK in your machine
+After cmake .., you can see the following screen to check whether MySQL library is OK in your machine
 ```
 -- MySQL - SOCI backend for MySQL
 -- SOCI_MYSQL                               = ON
@@ -138,11 +139,11 @@ If success, there are only some warning but no error messages. You can check
 cd lib
 ls -all redisoo
 ```
-If you can see the file of redisoo, the build is finished!
+If you can see **redisoo** file, the build is finished!
 
 NOTE: The executable file 'redisoo' is in the sub-folder 'lib' of the 'build' folder 
 
-because redisoo need the dynamic library such as libsoci_core and libsoci_mysql (for MySQL).
+because redisoo need the dynamic library such as libsoci_core.* and libsoci_mysql.* (for MySQL).
 
 And you can try to run it
 ```
@@ -153,7 +154,7 @@ If something wrong, you need
 
 1. Gurarentee the MySQL Client & SOCI building are successful, because in this user case, Redisoo is based on the two libraries.
 
-For other databases, I have not tried, but you can use the similiar way.
+For other databases, I have not tested, but you can use the similiar way.
 
 2. Sometimes, Jemalloc can not build successfully
 

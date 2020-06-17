@@ -27,19 +27,19 @@ applications need to connect to backend database and **SELECT** the key/value fr
 
 Then applications need to write the key/value to Redis by using Redis set or setex command
 
-so next time application can get the key/value from Redis memory.
+so next time applications can get the same key/value from Redis memory.
 
 When applications write the new value of the key, 
 
 they need to write the key/value to backend database and Redis (or just simply delete the key from Redis).
 
-Cache can be used as **Cache Through** pattern, 
+Cache can be applied as **Cache Through** pattern, 
 
 which means cache can connect to database directly and **SELECT** key/value for applications
 
 so applications only deal with cache and have no idea about backend database.
 
-Unfortunately Redis does not support **Cache Through**. 
+Unfortunately Redis does not support **Cache Through** pattern. 
 
 But Redisoo can do it and support all Redis features.
 

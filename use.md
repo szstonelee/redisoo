@@ -11,15 +11,15 @@ cd lib
 
 That is it!!!
 
-## How Redis work with config parameter
+## How Redis work with config arguments
 
-There are several set of config parameters for Redisoo, just like config parameter for Redis.
+There are several set of config arguments for Redisoo, just like config arguments for Redis.
 
 Please reference [Redis Config](https://redis.io/topics/config)
 
-You can use config paramter in three ways in Redis (**the same way as Redisoo**)
+You can use config arguments in three ways in Redis (**the same way as Redisoo**)
 
-### 1. launch with the paramter
+### 1. launch with the config arguments
 
 e.g.
 
@@ -28,24 +28,24 @@ e.g.
 ```
  This let redis-server start to accept connection from other ip, otherwise you only can connect to Redis in the same machine.
 
- So **bind** is the parameter name, **0.0.0.0** is the value.
+ So **bind** is the argument name, **0.0.0.0** is the value.
 
  Just like **key/value** pair
 
- ### 2. modify parameter online
+ ### 2. modify config arguments online
 
  e.g.
 ```
 ./redis-server --bind 0.0.0.0
 ```
-NOTE: bind is a parameter, but it can not be modified online.
+NOTE: bind is a argument, but it can not be modified online.
 
 then start a client like redis-cli to connect to Redis, assume your Redis runing at IP address: 192.168.64.5 
 ```
 ./redis-cli -h 192.168.64.5
 ```
 
-Let us try the config parameter of "maxclients", which limit how many clients can use Redis.
+Let us try the config argument of "maxclients", which limit how many clients can use Redis.
 
 at the first redis-cli, we issue such command
 ```
@@ -61,15 +61,15 @@ Redis will response as the following
 (error) ERR max number of clients reached
 ```
 
-So this the second way, use **config set** to change the parameter of Redis
+So this the second way, use **config set** to change the config arguments of Redis
 
 ### 3. use config file
 
-Your can modify the redis.conf file to change the parameters.
+Your can modify the redis.conf file to change the arguments.
 
-Then start Redis, let the paramters in redis.conf take effect.
+Then start Redis, let the arguments in redis.conf take effect.
 
-## Redisoo Config Parameters
+## Redisoo Config Arguments
 
 ### redisoo_db
 
@@ -98,7 +98,7 @@ config set redisoo_db mysql
 
 **redisoo_connection** is the connection string for the way to connect to the database.
 
-E.g. MySQL is installed in IP 192.168.64.5 with default listening port 3306
+e.g. MySQL is installed in IP 192.168.64.5 with default listening port 3306
 
 * Ip:  192.168.64.5
 * Port: 3306
@@ -120,7 +120,7 @@ You can set Redisoo like this
 ```
 config set redisoo_connection "host=192.168.64.5 port=3306 db=test user=redis password='1234abcd'"
 ```
-Other parameter for the connection string for MySQL, [please reference here](http://soci.sourceforge.net/doc/master/backends/mysql/)
+Other arguments for the connection string for MySQL, [please reference here](http://soci.sourceforge.net/doc/master/backends/mysql/)
 
 Other Database connection string, [please click here and do your try](http://soci.sourceforge.net/doc/master/backends/)
 
@@ -132,11 +132,11 @@ Connecting to database error! error msg = Can't connect to MySQL server on '127.
 ```
 Check your MySQL config and try to use mysql client tool for some tests to figure out what is wrong with your connection string.
 
-### parameters for get command for Redis
+### arguments for get command for Redis
 
 You can enable (or disable) the get command of Redis to use database.
 
-There are three parameters for [Redis 'get' command](https://redis.io/commands/get)
+There are three arguments for [Redis 'get' command](https://redis.io/commands/get)
  
 * redisoo_get
 * redisoo_get_sync
@@ -224,7 +224,7 @@ the client can get the value successfully.
 
 When you want to set the key TTL automatically with get command which value is from the database, 
 
-you can set the **redisoo_get_ttl** parameter. The unit is milli seconds.
+you can set the **redisoo_get_ttl** argument. The unit is milli seconds.
 
 If you set it to 0, it means NO TTL.
 
@@ -234,7 +234,7 @@ You can use the set, expire command to set different keys for different TTL.
 
 redisoo_get_ttl is for all keys from database when redisoo_get_ttl > 0.
 
-### parameters fro set comands for Redis
+### arguments fro set comands for Redis
 
 Redisoo support four set commands in Redis, they are 
 * [set](https://redis.io/commands/set)
@@ -242,7 +242,7 @@ Redisoo support four set commands in Redis, they are
 * [psetex](https://redis.io/commands/psetex)
 * [setnx](https://redis.io/commands/setnx)
 
-There are two config parameter for set
+There are two config arguments for set
 
 #### redisoo_set
 
@@ -276,13 +276,13 @@ But if there is something wrong with the database, the value has been changed in
 
 So there are some chance of inconsistency. But the tradeoff is that the client can get the response as quick as possible.
 
-### parameters for del command for Redis
+### arguments for del command for Redis
 
 For Redis [del command](https://redis.io/commands/del), but NOTE: only for one key. 
 
 If you use del for multi key, it will delete these key in cache but no effect for database.
 
-There are two config parameters for del.
+There are two config arguments for del.
 
 #### redisoo_del
 
@@ -310,7 +310,7 @@ When redisoo_del_sync == yes
 
 The client will wait until the key has been deleted from the database. (Acutally, the sql statement finished from database)
 
-And Redisoo will guarentee the key is consistenet with the database. 
+And Redisoo will guarentee the key is consistent with the database. 
 
 i.e. If something wrong with the database, the key will not be delete from Redisoo.
 
