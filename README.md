@@ -103,7 +103,7 @@ Redisoo deals with database for applications.
 
 # How build and how use
 
-[How build](build.md)
+[How Build](build.md)
 
 [How Use](use.md)
 

@@ -19,7 +19,7 @@ Please reference [Redis Config](https://redis.io/topics/config)
 
 You can use config arguments in three ways in Redis (**the same way as Redisoo**)
 
-### 1. launch with the config arguments
+### 1. launch with config arguments
 
 e.g.
 
@@ -122,10 +122,13 @@ SELECT User, Host FROM mysql.user;
 RENAME user 'redis'@'localhost' to 'redis'@'192.168.64.%';
 ```
 
-TIP2: MySQL server bind ip address may be 127.0.0.1, you can changed it to 0.0.0.0
+TIP2: MySQL server bind ip address may be 127.0.0.1 (when first install, it is the default), you can changed it to 0.0.0.0
 ```
 sudo find /etc -name my.cnf (and go on to find the correct config file of MySQL)
-sudo vi <your MySQL server config file> and changed bind-address = 127.0.0.1
+sudo vi /etc/mysql/mysql.conf.d/mysqld.cnf (my linux search result)
+and changed bind-address = 127.0.0.1 to bind-address = 0.0.0.0
+sudo systemctl stop mysql
+sudo systemctl start mysql
 ```
 
 You can set Redisoo like this

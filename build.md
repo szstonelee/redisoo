@@ -18,7 +18,7 @@ But the cmake version is not the latest. You can check your cmake version
 ```
 cmake --version
 ```
-If your cmake version is lower than 3.15 or does not have cmake, follow the following steps.
+If the cmake version is lower than 3.15 or there are no cmake, please follow the following steps.
 
 ### upgrade/install cmake to the latest version in Linux
 
@@ -79,15 +79,15 @@ Or you can use the following simpler ways
 ```
 brew install mysql-connector-c
 ```
-### Linux (my VM is Ubuntu 18.04, 16.04 LTS of [Multipass](https://github.com/canonical/multipass))
+### Linux (my VM is Ubuntu 20.04 18.04, 16.04 LTS of [Multipass](https://github.com/canonical/multipass))
 
 ```
 sudo apt-get update
 sudo apt-get install libmysqlclient-dev
 ```
 
-### check result of the build of MySQL C Client Library
-sqlclient library need be there
+### check result of the installation of MySQL C Client Library
+sqlclient library needs be in somewhere of /usr folder (e.g. my Linux is /usr/lib/x86_64-linux-gnu/libmysqlclient.a)
 ```
 sudo find /usr -name libmysqlclient.a (For my Linux VM, the search result is /usr/lib/x86_64-linux-gnu/libmysqlclient.a)
 sudo find /usr -name libmysqlclient.dylib (For Mac OS)
