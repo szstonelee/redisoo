@@ -1988,7 +1988,9 @@ int parseDbType(char *val) {
     }
     db_type[i] = 0;
 
-    if (strcmp(db_type,"mysql") == 0)
+    if (strcmp(db_type, "grpc") == 0)
+        return GRPC;
+    else if (strcmp(db_type,"mysql") == 0)
         return Mysql;
     else if (strcmp(db_type, "postegresql") == 0 || strcmp(db_type, "postegre") == 0)
         return PostegreSql;
@@ -2012,7 +2014,7 @@ static int isValidRedisooDb(char *val, char **err) {
     int db_type_id = parseDbType(val);
 
     if (db_type_id == 0) {
-        *err = "database type unrecognized, need be in [mysql, posgegresql, odbc, oracle, db2, sqllite, firebird or empty string]";
+        *err = "database type unrecognized, need be in [grpc, mysql, posgegresql, odbc, oracle, db2, sqllite, firebird or empty string]";
         return 0;
     }
 

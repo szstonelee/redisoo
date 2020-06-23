@@ -1,9 +1,10 @@
 #include "soci/soci.h"
 #include "redisoo.h"
 
+#include <grpcpp/grpcpp.h>
+#include "redisoo.grpc.pb.h"
+
 #include <iostream>
-// #include <istream>
-// #include <ostream>
 #include <string>
 #include <exception>
 
@@ -125,6 +126,56 @@ extern "C" int db_get(int db_type, char* connection, char* statement,
         std::cout << "Get statement execution failed! error msg = " << e.what() << std::endl;
         return 0;
     }
+}
+
+}
+
+namespace testgrpc {
+
+class RedisooGrpcClient {
+public:
+    RedisooGrpcClient(std::shared_ptr<grpc::Channel> channel) 
+        : stub_(redisoo::Redisoo::NewStub(channel)) {}
+
+
+    bool GetString(char* key, size_t key_sz, char** val, size_t* val_sz, long long* ttl) {
+        redisoo::GetStringRequest request;
+        request.set_key(key, key_sz);
+
+        redisoo::GetStringResponse response;
+        grpc::ClientContext context;
+
+        grpc::Status status = stub_->GetString(&context, request, &response);
+        if (!status.ok()) {
+            std::cout << "error: " << status.error_code() << ": " << status.error_message() << std::endl;
+            return false;
+        } else {
+            // std::cout << "success: " << response.value() << std::endl;
+            size_t sz = response.value().size();
+            void* new_heap_mem = zmalloc(sz);
+            memcpy(new_heap_mem, response.value().data(), sz);
+            *val = static_cast<char*>(new_heap_mem);
+            *val_sz = sz;
+            if (response.ttl_ms() > 0)
+                *ttl = static_cast<long long>(response.ttl_ms());
+            else
+                *ttl = 0;
+            return true;
+        }
+    }
+
+private:
+    std::unique_ptr<redisoo::Redisoo::Stub> stub_;   
+};
+
+extern "C" int grpc_get(char* connection, char* key, size_t key_sz, char** val, size_t* val_sz, long long* ttl) {
+    std::string cnn(connection);
+    // std::cout << "connection string = " << cnn << std::endl;
+    RedisooGrpcClient client(grpc::CreateChannel(cnn, grpc::InsecureChannelCredentials()));
+    if (client.GetString(key, key_sz, val, val_sz, ttl))
+        return 1;
+    else
+        return 0;
 }
 
 }

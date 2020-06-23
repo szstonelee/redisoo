@@ -158,8 +158,10 @@ int _checkGetCommandForBackendState(client *c) {
     if (strcmp(c->cmd->name, "get") != 0)
         return 0;
 
-    if (server.redisoo_get == NULL || strcmp(server.redisoo_get, "") == 0)
-        return 0;
+    if (server.redisoo_db_type != GRPC) {
+        if (server.redisoo_get == NULL || strcmp(server.redisoo_get, "") == 0)
+            return 0;
+    }
 
     robj *key = c->argv[1];
     robj *o = lookupKeyRead(c->db, key);    // will tigger ttl if key exists    
@@ -214,7 +216,7 @@ int _isSameKeyWithDifferentValForSet(client *c) {
  * otherwise, including 1: no key in db; 2: value different, we return 0
  * this avoid the concurrent duplicated write for the backend databsase */
 int _isSameValueInDbForSet(client *c) {
-    sds key = c->argv[1]->ptr;
+    robj* key = c->argv[1];
     sds val = c->argv[2]->ptr;
 
     robj *o = lookupKeyRead(c->db, key);    // will tigger ttl if key exists    
@@ -511,8 +513,15 @@ int _getJobInWorkingThread(int mode, int *dbid, sds *key) {
 void _implementGetJobByBackendInWorkingThread(sds key, sds *val) {
     char *val_db_ptr;
     size_t val_db_len;
-    int ret = db_get(server.redisoo_db_type, server.redisoo_connection, server.redisoo_get,
+    int ret;
+    long long ttl;  // NOTE: right now we have not support specifi TTL for grpc
+    
+    if (server.redisoo_db_type == GRPC) {
+        ret = grpc_get(server.redisoo_connection, key, sdslen(key), &val_db_ptr, &val_db_len, &ttl);
+    } else {
+        ret = db_get(server.redisoo_db_type, server.redisoo_connection, server.redisoo_get,
                      key, sdslen(key), &val_db_ptr, &val_db_len);
+    }
 
     if (ret == 0 || val_db_ptr == NULL) {
         /* ret == 0, means the backend failed, i.e. like SQL syntax error, 

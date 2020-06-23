@@ -27,12 +27,37 @@ set(SRC_SERVER
   src/backend.c src/redisoo.cc
 )
 
-add_executable(redisoo ${SRC_SERVER})
+set (PB_SERVICE "${CMAKE_BINARY_DIR}/redisoo.grpc.pb.cc")
+add_custom_command (
+  OUTPUT ${PB_SERVICE}
+  COMMAND protoc -I "${CMAKE_SOURCE_DIR}/proto" --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` "${CMAKE_SOURCE_DIR}/proto/redisoo.proto" 
+  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+)
+
+set (PB_MESSAGE "${CMAKE_BINARY_DIR}/redisoo.pb.cc")
+add_custom_command (
+  OUTPUT ${PB_MESSAGE}
+  COMMAND protoc -I "${CMAKE_SOURCE_DIR}/proto" --cpp_out=. "${CMAKE_SOURCE_DIR}/proto/redisoo.proto"
+  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+)
+
+include(FetchContent)
+FetchContent_Declare(
+  gRPC
+  GIT_REPOSITORY https://github.com/grpc/grpc
+  GIT_TAG        v1.28.0
+  )
+set(FETCHCONTENT_QUIET OFF)
+FetchContent_MakeAvailable(gRPC)
+
+add_executable(redisoo ${SRC_SERVER} ${PB_SERVICE} ${PB_MESSAGE})
 
 add_custom_target(release_header COMMAND sh -c ./mkreleasehdr.sh WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src)
 add_dependencies(redisoo release_header)
 
-target_include_directories(redisoo PUBLIC src deps/lua/src deps/hiredis deps/linenoise deps/soci/include ${CMAKE_BINARY_DIR}/deps/soci/include)
+target_include_directories(
+  redisoo PUBLIC src deps/lua/src deps/hiredis deps/linenoise deps/soci/include 
+  ${CMAKE_BINARY_DIR}/deps/soci/include ${CMAKE_BINARY_DIR})
 
 set_property(TARGET redisoo PROPERTY C_STANDARD 99)
 set_property(TARGET redisoo PROPERTY CXX_STANDARD 11)
@@ -55,6 +80,7 @@ target_link_libraries(redisoo
     PRIVATE hiredis
     PRIVATE ${CMAKE_DL_LIBS}
     PRIVATE soci
+    PRIVATE grpc++
 )
 
 

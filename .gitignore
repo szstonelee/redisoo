@@ -35,3 +35,5 @@ Makefile.dep
 .idea/*
 .idea
 build/
+go_debug_client/
+go_sample_server/server

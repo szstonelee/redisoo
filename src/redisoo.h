@@ -11,6 +11,8 @@ enum DatabaseType {
   SqlLite = 6,  
   Firebird = 7,
   Empty = 8,
+
+  GRPC = 100,
 };
 
 int db_get(int db_type, char* connection, char* statement, 
@@ -21,5 +23,7 @@ int db_set(int db_type, char* connection, char* statement,
 
 int db_del(int db_type, char* connection, char* statement,
            char* key, size_t key_sz);
+
+int grpc_get(char* connection, char* key, size_t key_sz, char** val, size_t* val_sz, long long* ttl);
 
 #endif
