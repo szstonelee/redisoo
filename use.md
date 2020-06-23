@@ -398,7 +398,8 @@ cd lib
 
 then in another terminal or machine in the same LAN, run a redis-cli, and try to get a key which is not in memory.
 
-You can code your specific gRpc middleware for redisoo, like to connect the backend database.
+You can code your specific gRpc middleware for redisoo, like 
+1. connecting to differnt backend database.
+2. use other language, like Python, Java, PHP which support gRpc, [check more detail](https://grpc.io/docs/languages/)
 
-Or using other language like Python, Java which useing gRpc protocol. Check gRpc for more details.
 
