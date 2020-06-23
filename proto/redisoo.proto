@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package redisoo;
+
+service Redisoo {
+	rpc GetString(GetStringRequest) returns (GetStringResponse) {} 
+}
+
+message GetStringRequest {
+	bytes key = 1;
+}
+
+message GetStringResponse {
+	enum Status {
+		STATUS_UNKNOWN = 0;
+		STATUS_NOT_FOUND = 1;
+		STATUS_INSERT = 2;
+		STATUS_REPLACE = 3;
+		STATUS_APPEND = 4;
+	}
+
+	Status status = 1;
+	bytes value = 2;
+	uint32 ttl_ms = 3;
+}
+
+
+
