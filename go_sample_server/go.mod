@@ -1,4 +1,4 @@
-module github.com/szstonelee/redisoo/goserver
+module github.com/szstonelee/redisoo/go_sample_server
 
 go 1.14
 
