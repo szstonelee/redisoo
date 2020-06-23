@@ -214,7 +214,7 @@ make jemalloc
 
 Then do the above build process again.
 
-## If you want build the gRpc Golang sample server
+## If you want to build the gRpc Golang sample server
 
 first, install the go tools to the 1.13 version
 

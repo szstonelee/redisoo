@@ -88,6 +88,7 @@ But if you want Redisoo connect to database, you need set for the following valu
 * db2
 * sqllite
 * firebird
+* grpc
 
 e.g.
 ```
