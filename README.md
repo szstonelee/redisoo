@@ -7,7 +7,7 @@ In short, Redisoo makes Redis connect to backend database directly,
 
 including MySQL, PostegreSQL, Oracle, ODBC(SQL Server), SqlLite, DB2, Firbird and gRPC.
 
-NOTE: For gRPC, you need code your gRPC server as middlew tier to the backend database.
+NOTE: For gRPC, you need code your gRPC server as middle tier to the backend database.
 
 It makes Redis **Cache Through** to solve some problems which are described in details below.
 
