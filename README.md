@@ -53,7 +53,7 @@ But Redisoo can do it and support all Redis features.
 
 In "Cache Aside" pattern, there is an inconsistency problem.
 
-<img src="inconsistency.jpg" width=800>
+<img src="doc/inconsistency.jpg" width=800>
 
 In "Cache Through" pattern, Redisoo solves the inconsistent problem.
 
@@ -105,8 +105,8 @@ Redisoo deals with database for applications.
 
 # How build and how use
 
-[How Build](build.md)
+[How Build](doc/build.md)
 
-[How Use](use.md)
+[How Use](doc/use.md)
 
 
