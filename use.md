@@ -370,9 +370,9 @@ config set redisoo_get_sync yes
 config set redisoo_get_ttl 60000
 ```
 
-### Sample of grpc Go server
+### Sample of gRpc Golang server
 
-In the project, I include a sample grpc server writing in Golang.
+In the project, I include a sample gRpc server writing in Golang.
 
 [You can build it](build.md)
 
@@ -383,7 +383,7 @@ cd go_sample_server
 ./server
 ```
 
-This server will reverse each key as value.
+This server will simply reverse each key as value and return to redisoo.
 
 How test the redisoo with the golang grpc server.
 
@@ -396,3 +396,8 @@ cd lib
 ```
 
 then in another terminal or machine in the same LAN, run a redis-cli, and try to get a key which is not in memory.
+
+You can code your specific gRpc middleware for redisoo, like to connect the backend database.
+
+Or using other language like Python, Java which useing gRpc protocol. Check gRpc for more details.
+

@@ -214,7 +214,7 @@ make jemalloc
 
 Then do the above build process again.
 
-## If you want build the Golang sample server
+## If you want build the gRpc Golang sample server
 
 first, install the go tools to the 1.13 version
 
@@ -237,6 +237,9 @@ If build the go source successfully, you can see server in the go_sample_server 
 
 run it 
 ```
+cd
+cd redisoo
+cd go_sample_server
 ./server
 ```
 this grpc sample server will listen in the localhost:40051 port.

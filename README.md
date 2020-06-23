@@ -5,9 +5,9 @@ Redisoo pronouces /rediso͞o/, meaning **Redis + Through**.
 
 In short, Redisoo makes Redis connect to backend database directly, 
 
-including MySQL, PostegreSQL, Oracle, ODBC(SQL Server), SqlLite, DB2, Firbird and Grpc.
+including MySQL, PostegreSQL, Oracle, ODBC(SQL Server), SqlLite, DB2, Firbird and gRpc.
 
-NOTE: For Grpc, you need code your Grpc server as middleware to the backend database.
+NOTE: For gRpc, you need code your gRpc server as middleware to the backend database.
 
 It makes Redis **Cache Through** to solve some problems which are described in details below.
 
