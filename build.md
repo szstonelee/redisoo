@@ -9,6 +9,7 @@ I changed the build from make to cmake for Redisoo. It makes the build process e
 1. gcc, g++
 2. make & cmake (cmake version above 3.15)
 3. autoconf (sometimes for Jemaloc issue for Linux)
+4. grpc
 
 You can install some tools in Linux by 
 ```
@@ -55,6 +56,36 @@ sudo apt install cmake
 You can check the version of cmake by 'cmake --version'.
 
 As of June 2020, the latest cmake version is 3.17.
+
+### Grpc (&protobuf)
+
+[Referenc here](https://grpc.io/docs/languages/cpp/quickstart/)
+
+I list the commands for you
+
+Linux
+```
+$ sudo apt install -y build-essential autoconf libtool pkg-config
+```
+Mac
+```
+brew install autoconf automake libtool pkg-config
+```
+Then
+```
+cd
+git clone --recurse-submodules -b v1.28.1 https://github.com/grpc/grpc
+cd grpc
+mkdir -p cmake/build
+pushd cmake/build
+cmake -DgRPC_INSTALL=ON \
+      -DgRPC_BUILD_TESTS=OFF \
+      -DCMAKE_INSTALL_PREFIX=$MY_INSTALL_DIR \
+      ../..
+make -j
+sudo make install
+popd
+```
 
 ### Libraries
 
@@ -182,6 +213,36 @@ make jemalloc
 ```
 
 Then do the above build process again.
+
+## If you want build the Golang sample server
+
+first, install the go tools to the 1.13 version
+
+For Linux
+```
+sudo apt-get update
+sudo apt-get -y upgrade
+wget https://dl.google.com/go/go1.13.3.linux-amd64.tar.gz
+sudo tar -xvf go1.13.3.linux-amd64.tar.gz
+sudo mv go /usr/local
+export GOROOT=/usr/local/go
+export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+cd
+cd redisoo
+cd go_sample_server
+go build server.go
+```
+
+If build the go source successfully, you can see server in the go_sample_server folder
+
+run it 
+```
+./server
+```
+this grpc sample server will listen in the localhost:40051 port.
+
+[And you can check how to use it.](use.md)
+
 
 ## At last, how use Redisoo
 

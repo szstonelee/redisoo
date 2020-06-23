@@ -369,3 +369,30 @@ config set redisoo_get "select address from t1 where name = :name"
 config set redisoo_get_sync yes
 config set redisoo_get_ttl 60000
 ```
+
+### Sample of grpc Go server
+
+In the project, I include a sample grpc server writing in Golang.
+
+[You can build it](build.md)
+
+After that, run it 
+```
+cd
+cd go_sample_server
+./server
+```
+
+This server will reverse each key as value.
+
+How test the redisoo with the golang grpc server.
+
+run redisoo as 
+```
+cd 
+cd redisoo
+cd lib
+./redisoo --bind 0.0.0.0 --redisoo_db grpc --redisoo_connection "localhost:40051" --redisoo_get_sync yes
+```
+
+then in another terminal or machine in the same LAN, run a redis-cli, and try to get a key which is not in memory.
