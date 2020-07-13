@@ -4,7 +4,68 @@ I changed the build from make to cmake for Redisoo. It makes the build process e
 
 ## What You need
 
-### Build Tools
+### Build with docker-compose
+
+#### install docker and docker-compose
+
+```
+sudo apt-get update
+# Uninstall Old Versions of Docker
+sudo apt-get remove docker docker-engine docker.io
+# install docker in Ubuntu
+sudo apt -y install docker.io
+# set docker as service
+sudo systemctl start docker
+sudo systemctl enable docker
+# install docker-compose
+sudo apt-get -y install python-pip
+sudo pip install docker-compose
+```
+
+For Mac, please install [Docker Desktop](https://www.docker.com/get-started) 
+
+#### download source from GitHub and run docker-compose
+
+```
+cd
+git clone https://github.com/szstonelee/redisoo.git redisoo
+cd redisoo/docker
+sudo docker pull szstonelee/redisoo:sample
+sudo docker-compose up -d
+```
+
+After a long time, if no error appear, it is sucessful.
+
+#### init MySQL table for the first time
+
+```
+sudo apt -y install mysql-client-core-5.7
+mysql -h 127.0.0.1 -u root -p
+```
+The password for root is "1234abcd". Check the docker-compose.yml in docker folder
+
+NOTE: if in MAC, maybe
+```
+mysql -h localhost -P 3306 --protocol=tcp -u root -p
+```
+
+Then in the MySQL client terminal, input the following SQL
+```
+USE test;
+CREATE TABLE t1 (name varchar(20) NOT NULL, address varchar(200) NOT NULL, PRIMARY KEY(name));
+```
+
+#### check the docker result
+
+use redis-cli to connect the redisoo server which port is 6379, then get, set, del
+
+You can check the result in the MySQL client by 
+```
+USE test;
+SELECT * FROM t1 LIMIT 10;
+```
+
+### Direct Build in Linux and MacOS
 
 1. gcc, g++
 2. make & cmake (cmake version above 3.15)
