@@ -8,7 +8,7 @@ There are two ways to build to show how Redisoo can work.
 
 2. Build directly with compilation
 
-## Build with docker-compose (for a sample test)
+## Build with docker-compose (only for a sample test for MySQL)
 
 ### install docker and docker-compose
 
