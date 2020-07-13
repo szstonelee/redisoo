@@ -306,7 +306,7 @@ Like redisoo_get and redisoo_set, it is the delete SQL statement for the databas
 
 e.g.
 ```
-config set redisoo_del "delete from t2 where name = :name" 
+config set redisoo_del "delete from t1 where name = :name" 
 ```
 
 NOTE: 

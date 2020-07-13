@@ -57,7 +57,7 @@ You can check the version of cmake by 'cmake --version'.
 
 As of June 2020, the latest cmake version is 3.17.
 
-### Grpc (&protobuf)
+### gRPC (&protobuf)
 
 [Referenc here](https://grpc.io/docs/languages/cpp/quickstart/)
 

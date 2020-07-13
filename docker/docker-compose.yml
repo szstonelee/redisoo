@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  
+  redisoo:
+    image: szstonelee/redisoo:sample
+    build: .
+    ports:
+      - "6379:6379"
+    entrypoint: ["/redisoo/redisoo", "--bind", "0.0.0.0", "--redisoo_db", "mysql", "--redisoo_connection", "host=db port=3306 db=test user=redis password='1234abcd'", "--redisoo_get", "select address from t1 where name = :name", "--redisoo_get_sync", "yes", "--redisoo_set", "replace into t1 (name, address) values (:name, :address)", "--redisoo_set_sync", "yes", "--redisoo_del", "delete from t1 where name = :name", "--redisoo_del_sync", "yes"]
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      - MYSQL_DATABASE=test
+      - MYSQL_USER=redis
+      - MYSQL_PASSWORD=1234abcd
+      - MYSQL_ROOT_PASSWORD=1234abcd
+    ports:
+      - "3306:3306"
+    volumes:
+      - my-db:/var/lib/mysql
+
+volumes:
+  my-db:
