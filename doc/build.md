@@ -1,12 +1,16 @@
 # How Build (example of MySQL)
 
-I changed the build from make to cmake for Redisoo. It makes the build process easier. (Reference: [old build](build_old.md))
+I changed the build from make to cmake for Redisoo. It makes the build process easier. (Reference: [old build with make](build_old.md))
 
-## What You need
+There are two ways to build to show how Redisoo can work.
 
-### Build with docker-compose
+1. Build with docker-compose
 
-#### install docker and docker-compose
+2. Build directly with compilation
+
+## Build with docker-compose (for a sample test)
+
+### install docker and docker-compose
 
 ```
 sudo apt-get update
@@ -24,7 +28,7 @@ sudo pip install docker-compose
 
 For Mac, please install [Docker Desktop](https://www.docker.com/get-started) 
 
-#### download source from GitHub and run docker-compose
+### download source from GitHub and run docker-compose
 
 ```
 cd
@@ -36,7 +40,7 @@ sudo docker-compose up -d
 
 After a long time, if no error appear, it is sucessful.
 
-#### init MySQL table for the first time
+### init MySQL table for the first time
 
 ```
 sudo apt -y install mysql-client-core-5.7
@@ -55,7 +59,11 @@ USE test;
 CREATE TABLE t1 (name varchar(20) NOT NULL, address varchar(200) NOT NULL, PRIMARY KEY(name));
 ```
 
-#### check the docker result
+Actually, docker version is related to both building and using for a simple sample for MySQL (No gRPC).
+
+If you want to check how gRPC work, please check the buiding with direct compiling.
+
+### check the docker result
 
 use redis-cli to connect the redisoo server which port is 6379, then get, set, del
 
@@ -65,7 +73,7 @@ USE test;
 SELECT * FROM t1 LIMIT 10;
 ```
 
-### Direct Build in Linux and MacOS
+## Build directly with compilation in Linux and MacOS
 
 1. gcc, g++
 2. make & cmake (cmake version above 3.15)
