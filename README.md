@@ -57,7 +57,7 @@ In "Cache Aside" pattern, there is an inconsistency problem.
 
 In "Cache Through" pattern, Redisoo solves the inconsistent problem.
 
-## Duplicated Problem
+## Duplication Problem
 
 In the above diagram, supposing that application 1 & 2 get the same key from Redis concurrently.
 
