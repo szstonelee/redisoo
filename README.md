@@ -53,6 +53,11 @@ But Redisoo can do it and support all Redis features.
 
 In "Cache Aside" pattern, there is an inconsistency problem.
 
+NOTE: if you can not see the picture below, mostly in China, please do the fix
+
+sudo vi /etc/hosts
+add a line of: ```199.232.68.133 raw.githubusercontent.com```
+
 <img src="doc/inconsistency.jpg" width=800>
 
 In "Cache Through" pattern, Redisoo solves the inconsistent problem.
