@@ -45,7 +45,7 @@ Unfortunately Redis does not support **Cache Through** pattern.
 
 But Redisoo can do it and support all Redis features.
 
-[You can check this artile for the comparsion](https://codeahoy.com/2017/08/11/caching-strategies-and-how-to-choose-the-right-one/)
+[You can check this artile for the comparsion between Cache Through and Cache Aside.](https://codeahoy.com/2017/08/11/caching-strategies-and-how-to-choose-the-right-one/) 
 
 # The problems and the benefits
 
